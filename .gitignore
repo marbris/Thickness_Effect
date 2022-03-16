@@ -1,0 +1,7 @@
+# Ignore data directory, pychache, and Output
+Data/
+Output/
+__pycache__/
+
+
+
