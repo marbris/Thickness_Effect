@@ -1,0 +1,31 @@
+{
+	"Label": "211123_NMC",
+	"Date": "2021-11-23",
+	"Slurry": {
+				"AM": 		{"Material": "NMC_#3_GM", 	"Mass": 905.3},
+				"Binder": 	{"Material": "PVDF_5pct", 	"Mass": 50.875},
+				"Carbon": 	{"Material": "Super P", 	"Mass": 51.4}
+			  },
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	"Samples": 	{	
+					"10" : {"SampleID": 10, "DoctorBlade": 400, "ECCmass": 30.4, "ECCthickness": 114, "Cycler_Channel": "2-6", "Cycler_Program": "c over 3", "StartTime": "2021-11-24 15:00"},
+					"11" : {"SampleID": 11, "DoctorBlade": 400, "ECCmass": 33.6, "ECCthickness": 127, "Cycler_Channel": "2-7", "Cycler_Program": "c over 3", "StartTime": "2021-11-24 15:00"},
+					"12" : {"SampleID": 12, "DoctorBlade": 400, "ECCmass": 35.8, "ECCthickness": 135, "Cycler_Channel": "2-8", "Cycler_Program": "c over 3", "StartTime": "2021-11-24 15:00"}
+				},
+	"Comments": null,
+	"MassUnit": "mg",
+	"LengthUnit": "um"
+}
+				
+	
+	
+
+
+
+
+

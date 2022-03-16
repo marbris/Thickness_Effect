@@ -1,0 +1,68 @@
+{
+	"Label": "220203_NMC",
+	"Date": "2022-02-03",
+	"Slurry": 			{
+							"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 2551.9},
+							"Carbon": 	{"Material": "Super P", 		"Mass": 211.1},
+							"Binder": 	{"Material": "PVDF_NMP_220131",	"Mass": 4817.1, "Binder_Concentration": 0.0502},
+							"Mixing":	{"Duration": 0.5, "rpm": 2000},
+							"Drying":	{"Duration": "overnight", "Temperature": 50, "Pressure": "Vacuum"}
+						},
+
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	"Samples":			{	
+							"01" : {"SampleID": 1, "DoctorBlade": 800, "ECCmass": 48.8, "ECCthickness": 197, "Cycler_Channel": "33, 9-1", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 13:45"},
+							"02" : {"SampleID": 2, "DoctorBlade": 800, "ECCmass": 42.5, "ECCthickness": 176, "Cycler_Channel": "29, 8-1", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 16:20"},
+							"07" : {"SampleID": 7, "DoctorBlade": 900, "ECCmass": 41.7, "ECCthickness": 180, "Cycler_Channel": "34, 9-2", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 13:45"},
+							"08" : {"SampleID": 8, "DoctorBlade": 900, "ECCmass": 44.3, "ECCthickness": 181, "Cycler_Channel": "30, 8-2", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 16:20"},
+							"13" : {"SampleID": 13, "DoctorBlade": 1000, "ECCmass": 49.0, "ECCthickness": 204, "Cycler_Channel": "35, 9-3", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 13:45"},
+							"14" : {"SampleID": 14, "DoctorBlade": 1000, "ECCmass": 54.3, "ECCthickness": 216, "Cycler_Channel": "31, 8-3", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 16:20"},
+							"19" : {"SampleID": 19, "DoctorBlade": 1100, "ECCmass": 49.2, "ECCthickness": 205, "Cycler_Channel": "36, 9-4", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 13:45"},
+							"20" : {"SampleID": 20, "DoctorBlade": 1100, "ECCmass": 54.3, "ECCthickness": 222, "Cycler_Channel": "32, 8-4", "Cycler_Program": "01C_1C", "StartTime": "2022-02-04 16:20"},
+							
+							"10" : {"SampleID":10, "DoctorBlade": 900, "ECCmass": 44.7, "ECCthickness": 186, "Cycler_Channel": "30, 8-2", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							"11" : {"SampleID":11, "DoctorBlade": 900, "ECCmass": 44.1, "ECCthickness": 183, "Cycler_Channel": "31, 8-3", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							"15" : {"SampleID":15, "DoctorBlade":1000, "ECCmass": 53.8, "ECCthickness": 227, "Cycler_Channel": "32, 8-4", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							"16" : {"SampleID":16, "DoctorBlade":1000, "ECCmass": 53.9, "ECCthickness": 219, "Cycler_Channel": "33, 9-1", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							"24" : {"SampleID":24, "DoctorBlade":1100, "ECCmass": 55.3, "ECCthickness": 230, "Cycler_Channel": "34, 9-2", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							"25" : {"SampleID":25, "DoctorBlade":1100, "ECCmass": 61.2, "ECCthickness": 242, "Cycler_Channel": "35, 9-3", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"},
+							
+							"03" : {"SampleID": 3, "DoctorBlade": 800, "ECCmass": 44.8, "ECCthickness": 193, "Cycler_Channel": "29, 8-1", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"04" : {"SampleID": 4, "DoctorBlade": 800, "ECCmass": 49.1, "ECCthickness": 193, "Cycler_Channel": "30, 8-2", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"05" : {"SampleID": 5, "DoctorBlade": 800, "ECCmass": 44.9, "ECCthickness": 178, "Cycler_Channel": "31, 8-3", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"06" : {"SampleID": 6, "DoctorBlade": 800, "ECCmass": 44.5, "ECCthickness": 186, "Cycler_Channel": "32, 8-4", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"09" : {"SampleID": 9, "DoctorBlade": 900, "ECCmass": 41.3, "ECCthickness": 165, "Cycler_Channel": "33, 9-1", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"17" : {"SampleID":17, "DoctorBlade":1000, "ECCmass": 50.9, "ECCthickness": 221, "Cycler_Channel": "34, 9-2", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"18" : {"SampleID":18, "DoctorBlade":1000, "ECCmass": 48.2, "ECCthickness": 203, "Cycler_Channel": "35, 9-3", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"21" : {"SampleID":21, "DoctorBlade":1100, "ECCmass": 56.1, "ECCthickness": 227, "Cycler_Channel": "36, 9-4", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"22" : {"SampleID":22, "DoctorBlade":1100, "ECCmass": 57.1, "ECCthickness": 240, "Cycler_Channel":"37, 10-1", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null},
+							"23" : {"SampleID":23, "DoctorBlade":1100, "ECCmass": 55.9, "ECCthickness": 220, "Cycler_Channel":"38, 10-2", "Cycler_Program": "01cC_01dC_1dC", "StartTime": null}
+						},
+
+	"Comments": 		["These electrodes have an AM:C:B ratio of 85:7:8, rather than the previous 90:5:5. The main point is to increase the amount of binder. I chose this ratio because H. Zheng (2012) uses it. This new ratio also has a larger amount of solvent, since the binder+solvent is the same as earlier.",
+	 					 "The slurry was still rather thick, but it was thin enough for the doctor blade to work. However, some very small bubbles formed, and these may cause problems after drying. we will see. ",
+	 					 "The electrodes had much smaller cracks than previous batches. However, there were still plenty of smaller cracks. I think the binder should increase further. The small bubbles remained and separated from the surrounding, leaving exposed current collector. The electrodes still look more promising than previously, so we will see what the cycling looks like.",
+	 					 "The data is bad!",
+             "On 2022-03-03 Xiaoyu discovered that I had been using the wrong electrolyte when assembling the coin cells, one without the lithium. So I made 6 new coin cells. Well see if it works.", 
+             "It works! Im making the remaining batteries, using flooded electrolyte." 
+	 					 ],
+
+	"Units":			{	"Mass": 		"mg",
+							"Length": 		"um",
+							"Time": 		"h",
+							"Temperature": 	"C"
+						}
+}
+				
+	
+	
+
+
+
+
+

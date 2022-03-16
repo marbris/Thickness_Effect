@@ -1,0 +1,55 @@
+{
+	"Label": "220209_NMC",
+	"Date": "2022-02-09",
+	"Slurry": 			{
+							"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 2397.8},
+							"Carbon": 	{"Material": "Super P", 		"Mass": 300.7},
+							"Binder": 	{"Material": "0.4*PVDF_NMP_220131 + 0.6*PVDF_NMP_220207", "Mass": 5995.7, "Binder_Concentration": 0.04906},
+							"Mixing":	{"Duration": 0.867, "rpm": 2000},
+							"Drying":	{"Duration": "overnight", "Temperature": 80, "Pressure": "Vacuum"}
+						},
+			  
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+						
+	"Samples":			{	
+					
+							"14" : {"SampleID": 14, "DoctorBlade": 800, "ECCmass": 33.3, "ECCthickness": 144, "Cycler_Channel": "29, 8-1", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"15" : {"SampleID": 15, "DoctorBlade": 800, "ECCmass": 28, "ECCthickness": 125, "Cycler_Channel": "30, 8-2", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"21" : {"SampleID": 21, "DoctorBlade": 900, "ECCmass": 35.5, "ECCthickness": 156, "Cycler_Channel": "31, 8-3", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"22" : {"SampleID": 22, "DoctorBlade": 900, "ECCmass": 36.2, "ECCthickness": 157, "Cycler_Channel": "32, 8-4", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"27" : {"SampleID": 27, "DoctorBlade": 1000, "ECCmass": 34.7, "ECCthickness": 149, "Cycler_Channel": "33, 9-1", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"28" : {"SampleID": 28, "DoctorBlade": 1000, "ECCmass": 32, "ECCthickness": 136, "Cycler_Channel": "34, 9-2", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"34" : {"SampleID": 34, "DoctorBlade": 1100, "ECCmass": 44.6, "ECCthickness": 198, "Cycler_Channel": "35, 9-3", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"},
+							"35" : {"SampleID": 35, "DoctorBlade": 1100, "ECCmass": 37.3, "ECCthickness": 168, "Cycler_Channel": "36, 9-4", "Cycler_Program": "01C_1C", "StartTime": "2022-02-10 18:38"}
+						},
+						
+	"Comments": 		["The previous batch seemed to improve with more pvdf, so for this one I increased it further to an AM:C:B ratio of 80:10:10.", 
+						 "I finished the previous batch of PVDF and continued with the next one; their fractions are 0.4 and 0.6, respectively. The binder concentration is the weighted average of the two.",
+						 "After mixing, the slurry was much too thick. So I added NMP twice: 1 ml + 12min/2krpm and 0.6ml + 10min/2krpm.",
+						 "For the 1000 doctor blade, I accidentally set one side to 1050 rather than 1000. So it may turn out uneven.",
+						 "The 550 doctorblade had bubbles that I could burst with the tip of a needle, it appeared very effective.",
+						 "When I put the spreads in the oven, I only had a single strip of tape on. The idea was that the aluminum should move freely. This was a bad idea and the foil warped up on itself from the tension of the drying cathode. The dried spreads appear fine through the window. Next time I need to go to the other extreme and firmly attach them to something more sturdy than paper. Maybe something the doctorblade can slide on, to reduce the amount of transport of the wet spreads.",
+						 "The thickest spread (1100) cracked when I tried to straighten the foil. Hopefully I got some goot batteries anyway.",
+						 "The electrodes ended up way too thin. 550 -> 73-87; 1100 -> 127-126. With this viscosity, the doctorblade needs to be set much larger, nothing below 900 is necessary. Overall the amounts may be too much. I got 38 electrodes. 20 would have been enough. Maybe the solid mass should be 2g rather than 3g.",
+						 "The data is back and is bad. FUCK!. I have only tried 800-1100 so far. I will try 550 and 700 to see if they are bad too. Ill ask Xiaoyu if he can make two, just to make sure its not me."
+						],
+	
+	"Units":			{	"Mass": 		"mg",
+							"Length": 		"um",
+							"Time": 		"h",
+							"Temperature": 	"C"
+						}
+}
+				
+	
+	
+
+
+
+
+

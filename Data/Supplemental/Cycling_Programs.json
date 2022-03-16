@@ -1,0 +1,612 @@
+{
+	"Martin_cycles_1": 		{	"Description": 	"Charging at C/3, discharging at C-rates from 0.5C to 15.1C. The other Martin_cycles_# are similar but staggered C-rates.",
+								"Units":	{	"Current": 		"C-rate",
+												"Voltage": 		"V",
+												"Time":			"min"
+											},					
+								"N_Cycles":		12,
+								"Cycles":		[	
+													{	"Description": "Initial Rest",
+														"Iterations": 1,
+														"N_Steps": 1,
+														"Steps": 	[	
+																		{"Step_Type": "Rest", "Duration": 20}
+																	]
+													},
+													{	"Description": "Formation Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 20},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 20}
+																	],
+													},
+													{	"Description": "Discharge 0.5C",
+														"Iterations": 3,
+														"N_Steps": 4,	
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.5, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 0.8C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.8, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 1.2C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1.2, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 1.8C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1.8, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 2.7C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -2.7, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 4.2C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -4.2, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 6.4C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -6.4, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 9.8C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -9.8, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 15.1C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -15.1, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Final C/10 Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	],
+													}
+												]		
+												
+					 
+							},
+	"Martin_cycles_2": 		{	"Description": 	"Charging at C/3, discharging at C-rates from 0.6C to 17.4C. The other Martin_cycles_# are similar but staggered C-rates.",
+								"Units":	{	"Current": 		"C-rate",
+												"Voltage": 		"V",
+												"Time":			"min"
+											},					
+								"N_Cycles":		12,
+								"Cycles":		[	
+													{	"Description": "Initial Rest",
+														"Iterations": 1,
+														"N_Steps": 1,
+														"Steps": 	[	
+																		{"Step_Type": "Rest", "Duration": 20}
+																	]
+													},
+													{	"Description": "Formation Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 20},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 20}
+																	],
+													},
+													{	"Description": "Discharge 0.6C",
+														"Iterations": 3,
+														"N_Steps": 4,	
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.6, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 0.9C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.9, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 1.3C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1.3, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 2.1C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -2.1, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 3.2C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -3.2, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 4.8C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -4.8, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 7.4C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -7.4, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 11.3C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -11.3, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 17.4C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -17.4, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Final C/10 Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	],
+													}
+												]		
+												
+					 
+							},
+	"Martin_cycles_3": 		{	"Description": 	"Charging at C/3, discharging at C-rates from 0.7C to 20C. The other Martin_cycles_# are similar but staggered C-rates.",
+								"Units":	{	"Current": 		"C-rate",
+												"Voltage": 		"V",
+												"Time":			"min"
+											},					
+								"N_Cycles":		12,
+								"Cycles":		[	
+													{	"Description": "Initial Rest",
+														"Iterations": 1,
+														"N_Steps": 1,
+														"Steps": 	[	
+																		{"Step_Type": "Rest", "Duration": 20}
+																	]
+													},
+													{	"Description": "Formation Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 20},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 20}
+																	],
+													},
+													{	"Description": "Discharge 0.7C",
+														"Iterations": 3,
+														"N_Steps": 4,	
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.7, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 1C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 1.6C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1.6, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 2.4C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -2.4, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 3.6C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -3.6, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 5.6C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -5.6, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 8.5C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -8.5, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 13.1C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -13.1, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Discharge 20C",
+														"Iterations": 3,
+														"N_Steps": 4,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.33, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CC_Discharge", 		"CC": -20, "CC_Cutoff": 2.8},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	]
+													},
+													{	"Description": "Final C/10 Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.01},
+																		{"Step_Type": "Rest", "Duration": 5},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.01},
+																		{"Step_Type": "Rest", "Duration": 5}
+																	],
+													}
+												]		
+												
+					 
+							},
+	"01C_1C_scan": 			{	"Description": 	"Charging at C/3, discharging at C-rates from 0.1C to 1C.",
+								"Units":	{	"Current": 		"C-rate",
+												"Voltage": 		"V",
+												"Time":			"min"
+											},					
+								"N_Cycles":		12,
+								"Cycles":		[	
+													{	"Description": "Initial Rest",
+														"Iterations": 1,
+														"N_Steps": 1,
+														"Steps": 	[	
+																		{"Step_Type": "Rest", "Duration": 240}
+																	]
+													},
+													{	"Description": "Formation Cycles",
+														"Iterations": 2,
+														"N_Steps": 2,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.005},
+																		{"Step_Type": "Rest", "Duration": 60},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.005},
+																		{"Step_Type": "Rest", "Duration": 60},
+																	],
+													},
+													{	"Description": "Discharge 0.2C",
+														"Iterations": 3,
+														"N_Steps": 2,	
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.2, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.3C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.3, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.4C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.4, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.5C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.5, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.6C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.6, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.7C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.7, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.8C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.8, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.9C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.9, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 1C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/3", "CV": 4.4, "CV_Cutoff": "1/60"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Final C/10 Cycles",
+														"Iterations": 2,
+														"N_Steps": 2,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": 0.1, "CV": 4.4, "CV_Cutoff": 0.005},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": -0.1, "CV": 2.8, "CV_Cutoff": -0.005}
+																	],
+													}
+												]		
+												
+					 
+							},
+	"DC10_D1C_scan_CC10": 	{	"Description": 	"Charging at C/10, discharging at C-rates from 0.1C to 1C.",
+								"Units":	{	"Current": 		"C-rate",
+												"Voltage": 		"V",
+												"Time":			"min"
+											},					
+								"N_Cycles":		12,
+								"Cycles":		[	
+													{	"Description": "Initial Rest",
+														"Iterations": 1,
+														"N_Steps": 1,
+														"Steps": 	[	
+																		{"Step_Type": "Rest", "Duration": 240}
+																	]
+													},
+													{	"Description": "Formation Cycles",
+														"Iterations": 2,
+														"N_Steps": 4,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "Rest", "Duration": 60},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": "-1/10", "CV": 2.8, "CV_Cutoff": "-1/200"},
+																		{"Step_Type": "Rest", "Duration": 60},
+																	],
+													},
+													{	"Description": "Discharge 0.2C",
+														"Iterations": 3,
+														"N_Steps": 2,	
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.2, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.3C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.3, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.4C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.4, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.5C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.5, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.6C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.6, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.7C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.7, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.8C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.8, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 0.9C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -0.9, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Discharge 1C",
+														"Iterations": 3,
+														"N_Steps": 2,		
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CC_Discharge", 		"CC": -1, "CC_Cutoff": 2.8}
+																	]
+													},
+													{	"Description": "Final C/10 Cycles",
+														"Iterations": 2,
+														"N_Steps": 2,
+														"Steps": 	[	
+																		{"Step_Type": "CCCV_Charge", 		"CC": "1/10", "CV": 4.4, "CV_Cutoff": "1/200"},
+																		{"Step_Type": "CCCV_Discharge", 	"CC": "-1/10", "CV": 2.8, "CV_Cutoff": "-1/200"}
+																	],
+													}
+												]		
+												
+					 
+							},
+
+
+}
+				
+	
+	
+
+
+
+
+

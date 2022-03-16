@@ -1,0 +1,39 @@
+{
+	"Label": "220125_NMC",
+	"Date": "2022-01-25",
+	"Slurry": {
+				"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 2702.6},
+				"Carbon": 	{"Material": "Super P", 		"Mass": 150.9},
+				"Binder": 	{"Material": "PVDF_NMP_220123", "Mass": 3014.5, "Binder_Concentration": 0.0500},
+				"Mixing":	{"Duration": 1, "rpm": 1000},
+				"Drying":	{"Duration": "overnight", "Temperature": 50, "Pressure": "Vacuum"}
+			  },
+	
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	
+	"Samples":	{	
+					
+					"01" : {"SampleID": 1, "DoctorBlade": null, "ECCmass": null, "ECCthickness": null, "Cycler_Channel": null, "Cycler_Program": null, "StartTime": null}
+				},
+	
+	"Comments": "This one ended up way too viscous. when mixing, I used 1000rpm for 1h, rather than 2000rpm for 0.5h.",
+	
+	"Units":	{	"Mass": 		"mg",
+					"Length": 		"um",
+					"Time": 		"h",
+					"Temperature": 	"C"
+				}
+}
+				
+	
+	
+
+
+
+
+

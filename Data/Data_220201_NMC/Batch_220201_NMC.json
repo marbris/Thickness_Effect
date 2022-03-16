@@ -1,0 +1,35 @@
+{
+	"Label": "220201_NMC",
+	"Date": "2022-02-01",
+	"Slurry": {
+				"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 2699.6},
+				"Carbon": 	{"Material": "Super P", 		"Mass": 150.9},
+				"Binder": 	{"Material": "PVDF_NMP_220131",	"Mass": 3011.3, "Binder_Concentration": 0.0502},
+				"Mixing":	{"Duration": 0.5, "rpm": 2000},
+				"Drying":	{"Duration": "overnight", "Temperature": 80, "Pressure": "Vacuum"}
+			  },
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	"Samples":	{ "01" : {"SampleID": 1, "DoctorBlade": null, "ECCmass": null, "ECCthickness": null, "Cycler_Channel": null, "Cycler_Program": null, "StartTime": null}
+				},
+				
+	"Comments": "The 1000 and 1100 electrode spreads showed deep cracks. Then I calendered the spreads. They got a shine to them, and the deep cracks appreared to mend somewhat. However, after punching the electrodes, they bent from the strain of the calender. This was exacerbated when electrolyte was dropped on and made it impossible to stack the coin cell. In the end I made two flooded electrodes and neither worked.",
+	
+	"Units":	{	"Mass": 		"mg",
+					"Length": 		"um",
+					"Time": 		"h",
+					"Temperature": 	"C"
+				}
+}
+				
+	
+	
+
+
+
+
+

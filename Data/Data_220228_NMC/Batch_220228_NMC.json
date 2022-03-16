@@ -1,0 +1,42 @@
+{
+	"Label": "220228_NMC",
+	"Date": "2022-02-28",
+	"Slurry": 			{
+							"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 1804.9},
+							"Carbon": 	{"Material": "Super P", 		"Mass": 101.9},
+							"Binder": 	{"Material": "0.463*PVDF_Redoxme + 0.546*PVDF_MSESupplies_220228",	"Mass":2.0407, "Binder_Concentration": 0.05},
+							"Mixing":	{"Duration": 0.75, "rpm": 2000},
+							"Drying":	{"Duration": "overnight", "Temperature": 60, "Pressure": "Vacuum"}
+						},
+
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	"Samples":			{	
+							"14" : {"SampleID":14, "DoctorBlade":1400, "ECCmass": 59.6, "ECCthickness": 231, "Cycler_Channel": "29, 8-1", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"}
+						},
+
+	"Comments": 		["I finally got the commercial PVDF from MSE Supplies (same supplier as Redox.me I think). So now I'm repeating the slurry from 211202, which worked great.",
+                   "The slurry was very thick after the first 30min 2krpm mixing, so I added about 0.4ml of NMP and mixed for another 15min at 2krpm. It make less viscous and looked good.",
+                   "This time I also taped the aluminum foil to aluminum plates instead of paper. The idea is that that it should prevent aluminum and paper warping during drying. On the first plate I used very strong tape. The process of attaching it was very risky and unstable. The next plate had the weaker paper tape. It was easier to attach.", 
+                   "The strips did not end up smooth. 1400 has visible bubbles, the edges of some of these has exposed Al. 1200 also has visible bubbles, but less so. 1200 has a small amount of cracks. 900 has no bubbles, but there are larger round brighter segments. I believe these come from bubbles I burst with a needle while wet. My guess is that these bubbles are caused by my using of a syringe(without needle) to transfer the slurry from the plastic container onto the aluminum. I think it mixes air into the slurry which doesn't leave during drying.",
+                   "For the next time, I need to trasfer the slurry without a syringe. I think I also need to mix in the extra NMP before mixing it all together. Because for 900 I see transparent areas, which I'm guessing are just NMP without any slurry",
+                   "The data was bad. So I asked Xiaoyu to make a few coin cells to see if I was doing something wrong. He discovered that I had been using the wrong electrolyte (without Li). He made #13 and #14. #14 has the correct electrolyte and I have put it in the cycler together with six 220203_NMC coin cells"],
+
+	"Units":			{	"Mass": 		"mg",
+							"Length": 		"um",
+							"Time": 		"h",
+							"Temperature": 	"C"
+						}
+}
+				
+	
+	
+
+
+
+
+

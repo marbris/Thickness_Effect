@@ -1,0 +1,51 @@
+{
+	"Label": "211202_NMC",
+	"Date": "2021-12-02",
+	"Slurry": {
+				"AM": 		{"Material": "NMC_#3_GM", 	"Mass": 1351.9},
+				"Carbon": 	{"Material": "Super P", 	"Mass": 75.6},
+				"Binder": 	{"Material": "PVDF_Redoxme", 	"Mass": 1509.1, "Binder_Concentration": 0.05},
+				"Mixing":	{"Duration": 0.5, "rpm": 2000},
+				"Drying":	{"Duration": "overnight", "Temperature": 80, "Pressure": "Vacuum"}
+			  },
+	
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	
+	"Samples":	{	
+					"02" : {"SampleID": 2,  "DoctorBlade": 200, "ECCmass": 19.0, "ECCthickness": 68,  "Cycler_Channel": "34, 9-2",  "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"03" : {"SampleID": 3,  "DoctorBlade": 200, "ECCmass": 18.8, "ECCthickness": 73,  "Cycler_Channel": "35, 9-3",  "Cycler_Program": "Martin_cycles_3", "StartTime": "2021-11-24 15:00"},
+					"05" : {"SampleID": 5,  "DoctorBlade": 200, "ECCmass": 19.5, "ECCthickness": 74,  "Cycler_Channel": "33, 9-1",  "Cycler_Program": "Martin_cycles_1", "StartTime": "2021-11-24 15:00"},
+					"06" : {"SampleID": 6,  "DoctorBlade": 200, "ECCmass": 18.9, "ECCthickness": 73,  "Cycler_Channel": "39, 10-3", "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"07" : {"SampleID": 7,  "DoctorBlade": 300, "ECCmass": 26.8, "ECCthickness": 102, "Cycler_Channel": "36, 9-4",  "Cycler_Program": "Martin_cycles_1", "StartTime": "2021-11-24 15:00"},
+					"08" : {"SampleID": 8,  "DoctorBlade": 300, "ECCmass": 25.9, "ECCthickness": 97,  "Cycler_Channel": "37, 10-1", "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"09" : {"SampleID": 9,  "DoctorBlade": 300, "ECCmass": 26.7, "ECCthickness": 103, "Cycler_Channel": "38, 10-2", "Cycler_Program": "Martin_cycles_3", "StartTime": "2021-11-24 15:00"},
+					"12" : {"SampleID": 12, "DoctorBlade": 400, "ECCmass": 37.4, "ECCthickness": 143, "Cycler_Channel": "40, 10-4", "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"13" : {"SampleID": 13, "DoctorBlade": 400, "ECCmass": 35.0, "ECCthickness": 130, "Cycler_Channel": "41, 11-1", "Cycler_Program": "Martin_cycles_3", "StartTime": "2021-11-24 15:00"},
+					"15" : {"SampleID": 15, "DoctorBlade": 500, "ECCmass": 46.6, "ECCthickness": 175, "Cycler_Channel": "43, 11-3", "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"16" : {"SampleID": 16, "DoctorBlade": 500, "ECCmass": 44.4, "ECCthickness": 166, "Cycler_Channel": "44, 11-4", "Cycler_Program": "Martin_cycles_3", "StartTime": "2021-11-24 15:00"},
+					"17" : {"SampleID": 17, "DoctorBlade": 600, "ECCmass": 47.2, "ECCthickness": 193, "Cycler_Channel": "45, 12-1", "Cycler_Program": "Martin_cycles_1", "StartTime": "2021-11-24 15:00"},
+					"18" : {"SampleID": 18, "DoctorBlade": 600, "ECCmass": 53.3, "ECCthickness": 197, "Cycler_Channel": "46, 12-2", "Cycler_Program": "Martin_cycles_2", "StartTime": "2021-11-24 15:00"},
+					"19" : {"SampleID": 19, "DoctorBlade": 600, "ECCmass": 50.7, "ECCthickness": 216, "Cycler_Channel": "47, 12-3", "Cycler_Program": "Martin_cycles_3", "StartTime": "2021-11-24 15:00"}
+				},
+	
+	"Comments": ["These samples were cycled with charging at C/3, and then discharged at 0.5C to 20C. The c-rates are staggered between the samples (Martin_cycles_1,2,3). The cycling was done with the Arbin cyclers in the basement"],
+	
+	"Units":	{	"Mass": 		"mg",
+					"Length": 		"um",
+					"Time": 		"h",
+					"Temperature": 	"C"
+				}
+}
+				
+	
+	
+
+
+
+
+

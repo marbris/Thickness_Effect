@@ -1,0 +1,39 @@
+{
+	"Label": "220303_NMC",
+	"Date": "2022-03-03",
+	"Slurry": 			{
+							"AM": 		{"Material": "NMC_#3_GM", 		"Mass": 1801.0},
+							"Carbon": 	{"Material": "Super P", 		"Mass": 101.6},
+							"Binder": 	{"Material": "PVDF_MSESupplies_220228",	"Mass":2.0190, "Binder_Concentration": 0.05},
+							"Mixing":	{"Duration": 0.7833, "rpm": 2000},
+							"Drying":	{"Duration": "overnight", "Temperature": 60, "Pressure": "Vacuum"}
+						},
+
+	"CurrentCollector":	{
+							"Material": 	"Aluminum",
+							"Mass": 		6.1,
+							"Thickness": 	22,
+							"Diameter[cm]":	1.27
+						},
+	"Samples":			{	
+							"XX" : {"SampleID": null, "DoctorBlade":1400, "ECCmass": 0, "ECCthickness": 0, "Cycler_Channel": "1", "Cycler_Program": "01C_1C", "StartTime": "2022-03-04 16:50"}
+						},
+
+	"Comments": 		["Xiaoyu made this slurry with me watching. I Could not see him doing anything differently. we made 1400, 1200, and 1000. The 1200 was applied to the foil with a syringe while 1400 and 1000 were poured from the cup.",
+                   "The spreads came out with severe cracks. Xiaoyu suggested that its because they're so thick, and that we should either add more binder, or let the wet spreads dry in a drawer for a few hours before putting them in the oven.",
+                   "There was a very small amount of bubbles on the syringe applied spread while none on the other two. I won't use the syringe again."],
+
+	"Units":			{	"Mass": 		"mg",
+							"Length": 		"um",
+							"Time": 		"h",
+							"Temperature": 	"C"
+						}
+}
+				
+	
+	
+
+
+
+
+
