@@ -714,7 +714,7 @@ def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 
 
 def init_OtherData():
     
-    filename='/home/martin/Work/Research/Batteries/Experiments/Data/Other/DYW_ZH_Data.csv'
+    filename='/home/martin/Work/Research/Batteries/Thickness_Effect/Data/Other/DYW_ZH_Data.csv'
     D = pd.read_csv(filename)
     
     

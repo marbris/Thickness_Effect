@@ -5,6 +5,7 @@ Created on Tue Mar 15 16:01:11 2022
 
 @author: martin
 """
+#%%
 import dfall_dfCrit
 #import Cycler
 import matplotlib.pyplot as plt
