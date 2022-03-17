@@ -163,5 +163,6 @@ df = Cycler.get_PointData('220209_NMC', '14', 'Data/', Properties = ['Test_Time(
 df.set_index('Test_Time(s)', inplace=True)
 df.groupby('Cycle_Index')['Current(A)'].plot(ax=ax, legend=True)
 
+#%%
 
 

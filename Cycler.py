@@ -640,7 +640,7 @@ def get_PointData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], 
             for key in Properties:
                 temp_df[key] = SampleData['Cycles'][Cyc_i]['Steps'][Step_i][key]
                  
-            Point_df = Point_df.append(temp_df, ignore_index = True)
+            Point_df = pd.concat([Point_df, temp_df], ignore_index=True)
     
     return Point_df
             
@@ -897,6 +897,20 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
             elif mode == 'Discharge': 
                 Q = group.loc[:,'Discharge_Capacity(Ah)'].to_numpy()
             
+            #V has adjacent points with identical value, this causes np.gradient to throw an ZeroDivisionError. Therefore I'm replacing the corresponding Q values by their average and remove one point.
+            
+            dV0_index = np.diff(V)==0
+            # dV0_index is one element shorter than V and Q. so I'm adding a False value at the end. Then the True values will correspond to the FIRST of the pair V[i]-V[i+1]=0 
+            dV0_index1 = np.append(dV0_index,False) #first
+            dV0_index2 = np.append(False, dV0_index) #second
+            
+            #calculating the average Q and placing it in the first of the pairs
+            Q[dV0_index1] = (Q[dV0_index1] + Q[dV0_index2])/2
+            #here im removing the second element of the pair, both from Q and V.
+            Q = np.delete(Q, dV0_index2)
+            V = np.delete(V, dV0_index2)
+            
+            # ! This keeps throwing an ZeroDivisionError even when there is no dV=0
             with np.errstate(divide='ignore'):
                 dQdV = np.gradient(Q,V)
             
@@ -909,11 +923,9 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                 
             if (mode=='Charge'):
                 
-                #im setting the SG_window to match the number of points 
-                #within a Curve_Volt voltage window
+                #im setting the SG_window to match the number of points within a Curve_Volt voltage window
                 
-                #for the charging step, im only evaluating the points
-                #around where the peak is
+                #for the charging step, im only evaluating the points around where the peak is
                 filter_V = (V>filter_V_lim[0]) & (V<filter_V_lim[1])
                 
                 
@@ -936,19 +948,14 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     
                     dQdV_smooth = savgol_filter(dQdV,SG_window,2)
                     
-                    #After filtering, the edge points are crazy and they 
-                    # can't be excluded with just a voltage limit. 
-                    # so after the voltage limit, I'm excluding all points after the first one with
-                    # d(dqdv)/d(v) larger than one standard deviation.
+                    #After filtering, the edge points are crazy and they can't be excluded with just a voltage limit. so after the voltage limit, I'm excluding all points after the first one with d(dqdv)/d(v) larger than one standard deviation.
                     vtemp_V = V[filter_V]
                     dqdvtemp_V = dQdV_smooth[filter_V]
                     dqdv2_V = np.gradient(dqdvtemp_V, vtemp_V)
                     
                     
-                    #argmax(..) gives the index of the first time 
-                    # dqdv2 exceeeds one std away from the mean.
-                    #In addition, to avoid that this removes the noisier peaks,
-                    # I'm only considering this filter above a voltage thresh.
+                    #argmax(..) gives the index of the first time dqdv2 exceeeds one std away from the mean.
+                    #In addition, to avoid that this removes the noisier peaks. I'm only considering this filter above a voltage thresh.
                     voltage_thresh_filter = vtemp_V > dqdv2_filter_lim
                     i_dqdv2_filter = np.argmax(abs(dqdv2_V[voltage_thresh_filter]) > dqdv2_V.mean()+dqdv2_V.std())
                     i_dqdv2_filter += np.argmax(voltage_thresh_filter) - 5  #Im removing 5 more points for good measure.
