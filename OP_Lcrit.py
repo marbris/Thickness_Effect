@@ -6,14 +6,16 @@ Created on Tue Mar 15 16:01:11 2022
 @author: martin
 """
 #%%
+
 import dfall_dfCrit
-#import Cycler
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 from scipy.optimize import fmin
 
 #%%
 
+#dfall, dfCrit = dfall_dfCrit.dfall_dfCrit(read_json = False, write_json = False)
 dfall, dfCrit = dfall_dfCrit.dfall_dfCrit()
 
 #%%
@@ -73,3 +75,5 @@ zz = np.linspace(0,2,1000)
 fun = lambda z: abs(Jf(0.0247, z) - 0)
 plt.plot(zz,fun(zz))
 
+
+# %%

@@ -673,7 +673,7 @@ def get_SampleList(DataDirectory = 'Data/'):
 def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 2):
     
     
-    dfBatch = pd.DataFrame()
+    dfBatch = pd.DataFrame(columns = ['Cycle_ID', 'Current(mA/cm2)', 'Capacity(mAh/cm2)','Capacity(mAh/gAM)', 'C-rate(1/h)', 'Thickness(um)', 'Cycler_Program', 'Wet_Thickness(um)', 'Cathode', 'SampleID', 'Batch'])
 
     for BatchLabel in list(SampleList.keys()):
         for SampleID in SampleList[BatchLabel]:
@@ -707,7 +707,7 @@ def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 
             df.loc[:,'SampleID'] = SampleID
             df.loc[:,'Batch'] = BatchLabel
         
-            dfBatch = dfBatch.append(df, ignore_index=True)
+            dfBatch = pd.concat([dfBatch, df], ignore_index=True)
 
     
     return dfBatch
@@ -846,7 +846,7 @@ def get_CritRL(dfall):
             df.loc[df['C-rate(rnd)'] == cr,'Thickness_lo(um)'] = crit_lo
             df.loc[df['C-rate(rnd)'] == cr,'Thickness_hi(um)'] = crit_hi
             
-        dfCrit = dfCrit.append(df, ignore_index=True)
+        dfCrit = pd.concat([dfCrit,df], ignore_index=True)
         
     return dfCrit
 
@@ -915,8 +915,8 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
             
             #removing points that are almost zero or nan
             nanzero_mask = (dQdV>1e-4) | (~np.isnan(dQdV))
-            dQdV = dQdV(nanzero_mask)
-            V = V(nanzero_mask)
+            dQdV = dQdV[nanzero_mask]
+            V = V[nanzero_mask]
             
             if (mode=='Charge'):
                 
@@ -1036,7 +1036,7 @@ def OPSampleList(SampleList, **kwargs):
             OPdf['Batch'] = batch
             
             ('B: ' + batch + ', S: ' + sample)
-            OPall = OPall.append(OPdf, ignore_index = True)
+            OPall = pd.concat([OPall,OPdf], ignore_index = True)
             
     
     return OPall
