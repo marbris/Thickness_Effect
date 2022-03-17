@@ -891,11 +891,12 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
         
         if (mode != "Rest") & (Dcap/dcap[0]>Dcap_Lim) & (name[0] in Incl_Cyc):
     
-            V = group.loc[:,'Voltage(V)'].to_numpy()
+            # * good to remember. .to_numpy() should always specify the type. if you dont it defaults to "object" which doesn't work with np.isnan() and np.gradient.
+            V = group.loc[:,'Voltage(V)'].to_numpy(dtype=float)
             if mode == 'Charge': 
-                Q = group.loc[:,'Charge_Capacity(Ah)'].to_numpy()
+                Q = group.loc[:,'Charge_Capacity(Ah)'].to_numpy(dtype=float)
             elif mode == 'Discharge': 
-                Q = group.loc[:,'Discharge_Capacity(Ah)'].to_numpy()
+                Q = group.loc[:,'Discharge_Capacity(Ah)'].to_numpy(dtype=float)
             
             #V has adjacent points with identical value, this causes np.gradient to throw an ZeroDivisionError. Therefore I'm replacing the corresponding Q values by their average and remove one point.
             
@@ -910,17 +911,13 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
             Q = np.delete(Q, dV0_index2)
             V = np.delete(V, dV0_index2)
             
-            # ! This keeps throwing an ZeroDivisionError even when there is no dV=0
-            with np.errstate(divide='ignore'):
-                dQdV = np.gradient(Q,V)
+            dQdV = np.gradient(Q,V)
             
-            #print("dqdv nan: " + str(sum(np.isnan(dQdV))))
-            #print("dqdv inf: " + str(sum(abs(dQdV)==np.inf)))
-            #removing the "pretty much equal to zero" and 
-            index = (abs(dQdV) > 1e-4) & (~np.isnan(dQdV))
-            dQdV = dQdV[index]
-            V = V[index]
-                
+            #removing points that are almost zero or nan
+            nanzero_mask = (dQdV>1e-4) | (~np.isnan(dQdV))
+            dQdV = dQdV(nanzero_mask)
+            V = V(nanzero_mask)
+            
             if (mode=='Charge'):
                 
                 #im setting the SG_window to match the number of points within a Curve_Volt voltage window
@@ -939,12 +936,7 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                 else:
                     SG_window = np.nan
                 
-                #print(SG_window)
-                
-                
-                if sum(index) >= SG_window:
-                    
-                    #print("Charge : " + str(SG_window))
+                if sum(filter_V) >= SG_window:
                     
                     dQdV_smooth = savgol_filter(dQdV,SG_window,2)
                     
@@ -961,8 +953,6 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     i_dqdv2_filter += np.argmax(voltage_thresh_filter) - 5  #Im removing 5 more points for good measure.
                     dqdv2_filter = np.array([True] * len(vtemp_V))
                     dqdv2_filter[i_dqdv2_filter:] = False
-                    
-                    #print(i_dqdv2_filter)
                     
                     
                     vtemp = vtemp_V[dqdv2_filter]
@@ -981,41 +971,23 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                             ax2.hlines([dqdv2_V.mean() - dqdv2_V.std(), dqdv2_V.mean(), dqdv2_V.mean() + dqdv2_V.std()], 4.1, 4.4, linestyle = '--', color = 'r')
                             ax2.vlines(dqdv2_filter_lim, min(dqdv2_V), max(dqdv2_V), linestyle = '--', color = 'r')
                         
-                    
-                    #var['dqdv'] = dqdvtemp
-                    #var.loc[:,'v'] = vtemp
                         
             elif (mode=='Discharge'):
+
                 
-                    
-                vtemp = V
+                pts_per_volt = len(V)/(max(V) - min(V))
+                pts_per_xV = pts_per_volt * Curve_Volt
+                #rounding UP to nearest odd
+                SG_window =  int(np.ceil(pts_per_xV) // 2 * 2 + 1)
                 
+                #I only include about 0.4V worth of points
+                #from where the discharge step starts (after rest)
                 
-                if vtemp.any():
-                    pts_per_volt = len(vtemp)/(max(vtemp) - min(vtemp))
-                    pts_per_xV = pts_per_volt * Curve_Volt
-                    #rounding UP to nearest odd
-                    SG_window =  int(np.ceil(pts_per_xV) // 2 * 2 + 1)
-                    
-                    #I only include about 0.4V worth of points
-                    #from where the discharge step starts (after rest)
-                    
-                    index = np.array([False] * len(V))
-                    index[:int(pts_per_volt*0.4)] = True
-                    
-                        
-                else:
-                    SG_window = np.nan
-                
-                
-                
-                
-                
+                index = np.array([False] * len(V))
+                index[:int(pts_per_volt*0.4)] = True
+
                 if sum(index) >= SG_window:
-                    
-                    #print("Discharge : " + str(SG_window))
-                    
-                    
+
                     dQdV_smooth = savgol_filter(dQdV,SG_window,2)
 
                     vtemp = V[index]
