@@ -38,7 +38,8 @@ AR = 1/1.618
 #%%
 
 
-datafile = 'Data/XRD/NMC_3_GM_4tt35tt_05ts_6ks_bg_subtracted.xye'
+#datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks/NMC_3_GM_4tt35tt_05ts_6ks_bg_subtracted.xye'
+datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_bg_subtracted.xye'
 df = pd.read_csv(datafile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
 
 

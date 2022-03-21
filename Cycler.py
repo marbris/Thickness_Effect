@@ -780,8 +780,8 @@ def CRate_groups(df, ProgDict):
             Crate_group = (df.loc[:,'C-rate(1/h)']>bins[i]) & (df.loc[:,'C-rate(1/h)']<=bins[i+1]) & (df.loc[:,'Cycler_Program'] == Cyc_Prog)
             df.loc[Crate_group,'C-rate(rnd)'] = cr
             df.loc[Crate_group,'C-rate(rnd-frac)'] = df.loc[Crate_group,'C-rate(1/h)']/cr-1
-            df.loc[Crate_group,'C-rate(mean)'] = df.loc[Crate_group,'C-rate(1/h)'].mean()
-            df.loc[Crate_group,'C-rate(std)'] = df.loc[Crate_group,'C-rate(1/h)'].std()
+            df.loc[Crate_group,'Avg_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].mean()
+            df.loc[Crate_group,'Std_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].std()
             
             thicks = np.sort(df.loc[df['C-rate(rnd)'] == cr,'Thickness(um)'].unique())
             

@@ -6,6 +6,7 @@ Created on Sun Feb 13 18:05:52 2022
 @author: martin
 """
 
+#%%
 
 import Cycler
 from matplotlib import pyplot as plt

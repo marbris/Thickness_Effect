@@ -5,6 +5,7 @@ Created on Sun Feb 13 14:57:55 2022
 
 @author: martin
 """
+#%%
 import Cycler
 from matplotlib import pyplot as plt
 import numpy as np
