@@ -5,9 +5,9 @@ Created on Wed Mar  9 09:48:48 2022
 
 @author: martin
 """
+#%%
 
-
-import dfall_dfCrit
+import main
 import pandas as pd
 import numpy as np
 import Cycler
@@ -28,9 +28,8 @@ plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 
-#%%
 
-dfall, dfCrit = dfall_dfCrit.dfall_dfCrit()
+dfall, dfCrit = main.dfall_dfCrit()
 
 
 
@@ -69,18 +68,5 @@ for l in ll:
     
 #%%
     
-    
-
-fig, ax= plt.subplots(figsize=(13,5))  
-
-
-plt.plot(ll[:-1],lcrit)
-
-ax.set_ylabel('', fontsize = 16)
-ax.set_xlabel('penetration depth', fontsize = 16)
-
-
-
-
 
 

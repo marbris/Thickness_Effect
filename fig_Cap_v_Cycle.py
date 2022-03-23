@@ -170,3 +170,5 @@ ax.text(8, claby, 'C-rates', color = 'k', fontsize = Cycfont, horizontalalignmen
 fig.tight_layout()
 plt.show()
     
+
+# %%

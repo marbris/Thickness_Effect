@@ -863,8 +863,11 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
     df = get_PointData(Batch, Sample)
     df_cyc = get_CycleData(Batch, Sample)
     
-    OPdf = pd.DataFrame(columns=['Cycle_ID', 'Charge_peak(V)', 'Discharge_peak(V)', 'Overpotential(V)'])
+    OPdf = pd.DataFrame(columns=['Cycle_ID', 'Charge_peak(V)', 'Charge_peak_dQdV(Ah/V)', 'Discharge_peak(V)', 'Discharge_peak_dQdV(Ah/V)', 'Overpotential(V)','SG_window_charge','SG_window_discharge'])
     OPdf.loc[:, 'Cycle_ID'] = df_cyc['Cycle_ID'].unique()
+    
+    df_dQdV = pd.DataFrame(columns=['Cycle_ID', 'Step_ID', 'mode', 'Voltage(V)', 'dQdV_smooth(Ah/V)','dQdV(Ah/V)'])
+    
     if ~Incl_Cyc.any():
         Incl_Cyc = df_cyc['Cycle_ID'].unique()
     
@@ -914,7 +917,7 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
             dQdV = np.gradient(Q,V)
             
             #removing points that are almost zero or nan
-            nanzero_mask = (dQdV>1e-4) | (~np.isnan(dQdV))
+            nanzero_mask = (abs(dQdV)>1e-4) & (~np.isnan(dQdV))
             dQdV = dQdV[nanzero_mask]
             V = V[nanzero_mask]
             
@@ -940,17 +943,23 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     
                     dQdV_smooth = savgol_filter(dQdV,SG_window,2)
                     
+                    #saving the actual datapoints within the range where the max is found
+                    dQdV_save = dQdV
+                    
                     #After filtering, the edge points are crazy and they can't be excluded with just a voltage limit. so after the voltage limit, I'm excluding all points after the first one with d(dqdv)/d(v) larger than one standard deviation.
                     vtemp_V = V[filter_V]
                     dqdvtemp_V = dQdV_smooth[filter_V]
                     dqdv2_V = np.gradient(dqdvtemp_V, vtemp_V)
                     
+                    dQdV_save = dQdV_save[filter_V]
+                     
                     
                     #argmax(..) gives the index of the first time dqdv2 exceeeds one std away from the mean.
                     #In addition, to avoid that this removes the noisier peaks. I'm only considering this filter above a voltage thresh.
                     voltage_thresh_filter = vtemp_V > dqdv2_filter_lim
                     i_dqdv2_filter = np.argmax(abs(dqdv2_V[voltage_thresh_filter]) > dqdv2_V.mean()+dqdv2_V.std())
-                    i_dqdv2_filter += np.argmax(voltage_thresh_filter) - 5  #Im removing 5 more points for good measure.
+                    #Im removing 5 more points for good measure.
+                    i_dqdv2_filter += np.argmax(voltage_thresh_filter) - 5  
                     dqdv2_filter = np.array([True] * len(vtemp_V))
                     dqdv2_filter[i_dqdv2_filter:] = False
                     
@@ -958,9 +967,16 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     vtemp = vtemp_V[dqdv2_filter]
                     dqdvtemp = dqdvtemp_V[dqdv2_filter]
                     
+                    dQdV_save = dQdV_save[dqdv2_filter]
+                    
                     peak_index = dqdvtemp == dqdvtemp.max()
                     peakV = vtemp[peak_index]
                     OPdf.loc[OPdf['Cycle_ID']==name[0], 'Charge_peak(V)'] = peakV
+                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Charge_peak_dQdV(Ah/V)'] = dqdvtemp.max()
+                    
+                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'SG_window_charge'] = SG_window
+                    
+                    
                     
                     if Plot:
                         ax1.plot(vtemp,dqdvtemp, marker='.', linestyle ='-', color = colors[np.mod(name[0],len(colors))])
@@ -970,7 +986,20 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                             ax2.plot(vtemp_V,dqdv2_V, marker='.', linestyle ='-', color = 'r', zorder = 0)
                             ax2.hlines([dqdv2_V.mean() - dqdv2_V.std(), dqdv2_V.mean(), dqdv2_V.mean() + dqdv2_V.std()], 4.1, 4.4, linestyle = '--', color = 'r')
                             ax2.vlines(dqdv2_filter_lim, min(dqdv2_V), max(dqdv2_V), linestyle = '--', color = 'r')
-                        
+                    
+                    
+                    data = {'Cycle_ID': [name[0]] * len(vtemp),
+                            'mode': [mode] * len(vtemp),
+                            'SG_window': [SG_window] * len(vtemp),
+                            'Voltage(V)': vtemp,
+                            'dQdV_smooth(Ah/V)' :dqdvtemp,
+                            'dQdV(Ah/V)' : dQdV_save}
+                    
+                    dftemp = pd.DataFrame(data=data)
+                    
+                    df_dQdV = df_dQdV.append(dftemp, ignore_index=True)
+                    
+                     
                         
             elif (mode=='Discharge'):
 
@@ -998,10 +1027,24 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
     
                     OPdf.loc[OPdf['Cycle_ID']==name[0], 'Discharge_peak(V)'] = peakV
                     
+                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Discharge_peak_dQdV(Ah/V)'] = dqdvtemp.min()
+                    
+                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'SG_window_discharge'] = SG_window
 
                     if Plot:
                         ax1.plot(vtemp,dqdvtemp, marker='.', linestyle ='-', color = colors[np.mod(name[0],len(colors))])
                         ax1.plot(peakV, dqdvtemp.min(), marker = 'o', alpha = 0.5, color = 'k', markersize=10)
+                    
+                    data = {'Cycle_ID': [name[0]] * len(vtemp),
+                            'mode': [mode] * len(vtemp),
+                            'SG_window': [SG_window] * len(vtemp),
+                            'Voltage(V)': vtemp,
+                            'dQdV_smooth(Ah/V)' : dqdvtemp,
+                            'dQdV(Ah/V)' : dQdV[index]}
+                    
+                    dftemp = pd.DataFrame(data=data)
+                    
+                    df_dQdV = df_dQdV.append(dftemp, ignore_index=True)
     
                 
                 
@@ -1022,7 +1065,7 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
         
         plt.show()
     
-    return OPdf#, var
+    return OPdf, df_dQdV
 
 
 def OPSampleList(SampleList, **kwargs):
@@ -1042,6 +1085,44 @@ def OPSampleList(SampleList, **kwargs):
     return OPall
             
     
+def get_ChargeDischarge(BatchLabel, SampleID, DataDirectory='Data/'):
     
     
-    return
+    df_Charge_Discharge = pd.DataFrame(columns=['Cycle_Index', 'Step_Index','Charge_Capacity(mAh/cm2)','Charge_Capacity(mAh/gAM)', 'Discharge_Capacity(mAh/cm2)','Discharge_Capacity(mAh/gAM)', 'Voltage(V)', 'C-rate(1/h)'])
+    
+    SampleInfo, BatchInfo = get_SampleInfo(BatchLabel, SampleID, DataDirectory)
+    Prog = SampleInfo['Cycler_Program']
+    
+    Cathode_Diameter = BatchInfo['CurrentCollector']['Diameter[cm]']
+    Cathode_Area = (Cathode_Diameter/2)**2*np.pi
+    Thickness = SampleInfo['ECCthickness'] - BatchInfo['CurrentCollector']['Thickness'] #micrometer
+    Cathode_Mass = (SampleInfo['ECCmass']-BatchInfo['CurrentCollector']['Mass'])*1e-3 #grams
+    
+    Batch_AM_Mass = BatchInfo['Slurry']['AM']['Mass']
+    Batch_Binder_Mass = BatchInfo['Slurry']['Binder']['Mass']*BatchInfo['Slurry']['Binder']['Binder_Concentration']
+    Batch_Carbon_Mass = BatchInfo['Slurry']['Carbon']['Mass']
+    
+    Batch_Mass = Batch_AM_Mass + Batch_Binder_Mass + Batch_Carbon_Mass
+    AM_Mass_frac = Batch_AM_Mass/Batch_Mass
+    Cathode_AM_Mass = Cathode_Mass * AM_Mass_frac #grams
+    
+    
+    df = get_PointData(BatchLabel, SampleID, DataDirectory, Properties=['Cycle_Index', 'Step_Index', 'Charge_Capacity(Ah)', 'Discharge_Capacity(Ah)', 'Voltage(V)', 'Current(A)'])
+  
+    
+    df_Charge_Discharge['Cycle_Index'] = df.loc[:,'Cycle_Index']
+    df_Charge_Discharge.loc[:,'Step_Index'] = df.loc[:,'Step_Index']
+    df_Charge_Discharge.loc[:,'Charge_Capacity(mAh/cm2)'] = df.loc[:,'Charge_Capacity(Ah)']*1e3/Cathode_Area
+    df_Charge_Discharge.loc[:,'Charge_Capacity(mAh/gAM)'] = df.loc[:,'Charge_Capacity(Ah)']*1e3/Cathode_AM_Mass
+    df_Charge_Discharge.loc[:,'Discharge_Capacity(mAh/cm2)'] = df.loc[:,'Discharge_Capacity(Ah)']*1e3/Cathode_Area
+    df_Charge_Discharge.loc[:,'Discharge_Capacity(mAh/gAM)'] = df.loc[:,'Discharge_Capacity(Ah)']*1e3/Cathode_AM_Mass
+    df_Charge_Discharge.loc[:,'Voltage(V)'] = df.loc[:,'Voltage(V)']
+    df_Charge_Discharge.loc[:,'C-rate(1/h)'] = df.loc[:,'Current(A)'] / df.loc[df['Cycle_Index']==2,'Discharge_Capacity(Ah)'].max()
+    
+    
+    
+    return df_Charge_Discharge
+
+
+
+

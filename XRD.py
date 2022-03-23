@@ -39,21 +39,32 @@ AR = 1/1.618
 
 
 #datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks/NMC_3_GM_4tt35tt_05ts_6ks_bg_subtracted.xye'
-datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_bg_subtracted.xye'
-df = pd.read_csv(datafile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
+#datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_bg_subtracted.xye'
 
+datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_exported.xye'
+
+datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks/NMC_3_GM_4tt35tt_05ts_6ks_exported.xye'
+df_NMC = pd.read_csv(datafile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
+
+
+Puckfile = 'Data/XRD/Puck/Puck_exported.xye'
+df_Puck = pd.read_csv(Puckfile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
 
 
 
 l_Cu = 1.54056 #Ang
 l_Mo = 0.70930 #Ang
 
-df.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
+df_NMC.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_NMC['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
+
+df_Puck.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_Puck['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
 
 #fig, ax= plt.subplots(figsize=(13,6))
 fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))
 
-df.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = None, linewidth = 0.5)
+df_NMC.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = None, linewidth = 0.5)
+
+df_Puck.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='r', marker = None, linewidth = 0.5)
 
 xrdfile = 'Data/XRD/mp-25411_xrd_Cu.json'
 with open(xrdfile) as file:

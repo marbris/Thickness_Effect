@@ -41,6 +41,8 @@ T = 278 #K
 F = 96485.3329 # C/mol
 b=2*R*T/(n*F) #V
 
+
+
 xmin = 1e-1
 xmax = 2.1e1
 
@@ -91,8 +93,8 @@ def markerfun(wt, ttss):
     
     return mark
 
-Jd = 0.1
-L0 = 250
+Jd = np.exp(-1)
+L0 = 93
 
 ttss=np.array([])
 wtt=np.array([])
