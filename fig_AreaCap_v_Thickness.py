@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 #import pandas as pd
 import main
+import simplejson as json
 
 SMALL_SIZE = 10
 MEDIUM_SIZE = 12
@@ -36,7 +37,7 @@ dfall, dfCrit = main.dfall_dfCrit()
 Batch = '211202_NMC'
 
 dfplot = dfall.loc[dfall['Batch'] == Batch, 
-                   ('C-rate(rnd)', 
+                   ('C-rate(prog)', 
                     'Avg_C-rate(1/h)', 
                     'Thickness(um)', 
                     'Avg_DCapacity(mAh/cm2)')].copy()
@@ -44,7 +45,7 @@ dfplot = dfall.loc[dfall['Batch'] == Batch,
 
 dfCritplot = dfCrit.loc[dfCrit['Batch'] == Batch, 
                         ('C-rate_mean(1/h)', 
-                         'C-rate(rnd)', 
+                         'C-rate(prog)', 
                          'Thickness_max(um)',
                          'Avg_DCapacity_max(mAh/cm2)')].copy()
 
@@ -85,7 +86,7 @@ for cr in crts2:
     gg = np.append(gg,G)
     cc = np.append(cc, cr)
     
-    df3 = dfplot.loc[dfplot['C-rate(rnd)'] == cr].copy()
+    df3 = dfplot.loc[dfplot['C-rate(prog)'] == cr].copy()
     label = '{:.1f}'.format(df3['Avg_C-rate(1/h)'].mean())
     
     df3.sort_values(by = ['Thickness(um)'], ignore_index=True, inplace = True)
@@ -93,7 +94,7 @@ for cr in crts2:
     
     if G==1:
         
-        dfCritplot[dfCritplot['C-rate(rnd)']==cr].plot(x='Thickness_max(um)', y='Avg_DCapacity_max(mAh/cm2)', marker = markfun(G), markersize = sizefun(G, cr)*2+2, color = colorfun(G), alpha = 0.3, ax=ax, label='_nolegend_')
+        dfCritplot[dfCritplot['C-rate(prog)']==cr].plot(x='Thickness_max(um)', y='Avg_DCapacity_max(mAh/cm2)', marker = markfun(G), markersize = sizefun(G, cr)*2+2, color = colorfun(G), alpha = 0.3, ax=ax, label='_nolegend_')
     
 
 NCol = len(np.unique(gg))
@@ -115,6 +116,113 @@ ax.legend(handles, labels,
           framealpha = 0, 
           bbox_to_anchor=(-0.03,0.95), 
           loc = 'upper left',
+          columnspacing=0.5, 
+          handletextpad = 0.3, 
+          labelspacing = 0.3)
+
+ax.text(5, 8.9, 'C-rates', color = 'k', horizontalalignment = 'left', verticalalignment = 'bottom')
+
+
+
+ax.set_ylabel('Areal Discharge Capacity \n[mAh/cm$^2$]')
+ax.set_xlabel('Thickness [$\mu m$]')
+
+fig.tight_layout()
+plt.show()
+
+
+
+#%% plotting areacap vs thickness for my sampels
+
+Batch = '220203_NMC'
+
+index = (dfall['Batch'] == Batch)
+dfplot = dfall.loc[index, 
+                   ('C-rate(prog)', 
+                    'Avg_C-rate(1/h)', 
+                    'Thickness(um)', 
+                    'Avg_DCapacity(mAh/cm2)')].copy()
+
+
+dfCritplot = dfCrit.loc[dfCrit['Batch'] == Batch, 
+                        ('C-rate_mean(1/h)', 
+                         'C-rate(prog)', 
+                         'Thickness_max(um)',
+                         'Avg_DCapacity_max(mAh/cm2)')].copy()
+
+fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))    
+
+ax.set_ylim((-0.5, 8))
+ax.set_xlim((150, 220))
+
+
+CycleProgramFile = "Data/Supplemental/Cycler_Prog.json"
+with open(CycleProgramFile) as file:
+        ProgDict=json.load(file)
+
+crts2 = ProgDict["01cC_01dC_1dC"]["Discharge C-rates"]
+crts2 = np.unique(crts2)
+
+cr_groups = np.array([0.6, 2])
+Cols = ['#219ebc', '#e36414']
+markers = ['^','o']
+
+def colorfun(G):
+    #the color is determined by how many lower cr-groups there are
+    color = Cols[G]
+    return color
+    
+def sizefun(G, cr):
+    if G == 0:
+        ms = 1 + 8*cr
+    elif G==1:
+        ms = 5*cr
+    elif G==2:
+        ms = (cr-4.5)*6 
+    return ms
+
+def markfun(G):
+    return markers[G]
+
+#Im using these to sort the legend
+gg=np.array([])
+cc=np.array([])
+
+for cr in crts2:
+    G = int(2 - sum(cr <= cr_groups))
+    gg = np.append(gg,G)
+    cc = np.append(cc, cr)
+    
+    df3 = dfplot.loc[dfplot['C-rate(prog)'] == cr].copy()
+    label = '{:.1f}'.format(df3['Avg_C-rate(1/h)'].mean())
+    
+    df3.sort_values(by = ['Thickness(um)'], ignore_index=True, inplace = True)
+    df3.plot(x = 'Thickness(um)', y = 'Avg_DCapacity(mAh/cm2)', ax = ax, marker = markfun(G), markersize = sizefun(G, cr), color = colorfun(G), linewidth = 1, label = label)#'C: {}'.format(cr))
+    
+    if G==1:
+        
+        dfCritplot[dfCritplot['C-rate(prog)']==cr].plot(x='Thickness_max(um)', y='Avg_DCapacity_max(mAh/cm2)', marker = markfun(G), markersize = sizefun(G, cr)*2+2, color = colorfun(G), alpha = 0.3, ax=ax, label='_nolegend_')
+    
+
+NCol = len(np.unique(gg))
+maxrows = 6
+for ggi in np.unique(gg):
+    N_dummies = maxrows - len(gg[gg==ggi])
+    for i in range(N_dummies):
+            ax.plot(np.zeros(1), np.zeros([1,2]), color='w', alpha=0, label=' ')
+            gg = np.append(gg, ggi)
+            cc = np.append(cc, -1)
+
+
+handles, labels = ax.get_legend_handles_labels()
+# sort both labels and handles by labels
+labels, handles, tt2, pp2 = zip(*sorted(zip(labels, handles, cc, gg), key=lambda k: (np.mod(k[3]+1,3), k[2]), reverse=True))
+
+ax.legend(handles, labels, 
+          ncol = NCol, 
+          framealpha = 0, 
+          bbox_to_anchor=(-0.03,0.00), 
+          loc = 'lower left',
           columnspacing=0.5, 
           handletextpad = 0.3, 
           labelspacing = 0.3)

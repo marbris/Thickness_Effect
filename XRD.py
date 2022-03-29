@@ -62,9 +62,9 @@ df_Puck.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_Puck['2Th_[Mo]']*(
 #fig, ax= plt.subplots(figsize=(13,6))
 fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))
 
-df_NMC.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = None, linewidth = 0.5)
+df_NMC.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = None, linewidth = 0.5, label = "NMC-powder")
 
-df_Puck.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='r', marker = None, linewidth = 0.5)
+df_Puck.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='r', marker = None, linewidth = 0.5, label = "empty puck")
 
 xrdfile = 'Data/XRD/mp-25411_xrd_Cu.json'
 with open(xrdfile) as file:
@@ -101,7 +101,7 @@ kk = dd_NMC/dd_LCO[:10]
 pp2 = 2*np.arcsin(1/kk[1]*np.sin(pp/2*np.pi/180))*180/np.pi
 
 
-plt.vlines(pp, 0, hh, color = 'r', linewidth = 1, zorder=1e3, alpha = 0.7)
+#plt.vlines(pp, 0, hh, color = 'r', linewidth = 1, zorder=1e3, alpha = 0.7)
 #peaks, peakdict = find_peaks(df.loc[:,'Cnt'], prominence = (3, 1e5))
 
 #df.loc[peaks,:].plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = 'o', linestyle='')

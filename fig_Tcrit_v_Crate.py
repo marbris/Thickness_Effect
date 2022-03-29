@@ -39,9 +39,10 @@ dfall, dfCrit = main.dfall_dfCrit()
 
 #%% Critical Thickness vs Crate double column figure
 
-Cols = ['#e36414','#0db39e','#748cab','#8a5a44']
-markers = ['o','s','d', 'v']
-lines = ['-',':','--','']
+Cols = ['#e36414','#0db39e','#748cab','#8a5a44','#264653']
+#Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
+markers = ['o','s','d', 'v', '^']
+lines = ['-',':','--','-.', '']
 def stylefun(G):
     return (Cols[G], markers[G], lines[G])
 
@@ -52,8 +53,8 @@ Rfun = lambda L, k: k/L**2
 
 xmin = 1e-1
 xmax = 2.1e1
-ymin = 0
-ymax = 200
+ymin = -30
+ymax = 210
 
 ax.set_ylim((ymin, ymax))
 ax.set_xlim((xmin, xmax))
@@ -81,17 +82,17 @@ for i, k in enumerate(kkmuh):
     else:
         #xpos = 1.1e-1
         #ypos = Lfun(xpos, k)-10
-        ax.text(xpos, ypos, "RL$_d^2$ = {}".format(kkcms[i]/1e-8) +  " [$10^{-8}$ cm$^2$/s]", color = 'k', fontsize = 8, horizontalalignment = 'left', verticalalignment = 'top', rotation = -22)
+        ax.text(xpos, ypos, "RL$_d^2$ = {}".format(kkcms[i]/1e-8) +  " [$10^{-8}$ cm$^2$/s]", color = 'k', fontsize = 8, horizontalalignment = 'left', verticalalignment = 'top', rotation = -20)
 
 
-Cc = dfCrit.loc[dfCrit['Batch']=='211202_NMC', 'C-rate(rnd)']
+Cc = dfCrit.loc[dfCrit['Batch']=='211202_NMC', 'C-rate(prog)']
 index2 = (Cc > 0.1) & (Cc < 4.8) 
 ms = 4
 lw = 1.5
 for i, (name, group) in enumerate(dfCrit.groupby(by=['Batch'])):
     
     df = group
-    
+    print(name)
     
     index = ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
     

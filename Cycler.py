@@ -332,12 +332,18 @@ def MITS_2json(filename, outfile='', Output_JSON_file=True, Pretty_JSON=False, C
             
         #this is the data for this cycle
         C_Data = D.loc[D['Cycle_Index']==C_ind]
-    
+        
+        #I calculate the charge and discharge currents by taking the median of the positive and negative currents, respectively. 
+        #I_Charge = C_Data.loc[C_Data['Current(A)']>0,'Current(A)'].median()*1e3 #mA
+        #I_Discharge = -C_Data.loc[C_Data['Current(A)']<0,'Current(A)'].median()*1e3 #mA
+        
+        #I use the step currents for the charge and discharge currents. So I'm adding a dummy zero there now, and filling it after the steps are done.
+
         #I put the single line data into a cell of the dictionary strucutre.
         data['Cycles'].append({
-            'Cycle_ID':                         int(C_ind),
-            'Charge_Current(mA)':               float(C_Data['Current(A)'].max()*1e3),
-            'Discharge_Current(mA)':            float(C_Data['Current(A)'].min()*1e3),
+            'Cycle':                            int(C_ind),
+            'Charge_Current(mA)':               float(0),
+            'Discharge_Current(mA)':            float(0),
             'Voltage_High(V)':                  float(C_Data['Voltage(V)'].max()),
             'Voltage_Low(V)':                   float(C_Data['Voltage(V)'].min()),
             'Charge_Capacity(mAh)':             float(C_Data['Charge_Capacity(Ah)'].max()*1e3),
@@ -356,48 +362,77 @@ def MITS_2json(filename, outfile='', Output_JSON_file=True, Pretty_JSON=False, C
         #initializing array of steps
         data['Cycles'][Cyc_i]['Steps']=[]
         
+        
+        DisCharge_currents = np.array([])
         #Here I loop through the steps within 
         for [Step_i, S_ind] in enumerate(Step_index):
             
             #this is the single line data for this cycle
             S_Data = C_Data.loc[C_Data['Step_Index']==S_ind]
             
+            Charge_Cap = (S_Data['Charge_Capacity(Ah)'].max()-S_Data['Charge_Capacity(Ah)'].min())*1e3 #mAh
+            Discharge_Cap = (S_Data['Discharge_Capacity(Ah)'].max()-S_Data['Discharge_Capacity(Ah)'].min())*1e3 #mAh
+            
+            
+            if len(S_Data) > 1:
+            
+                if S_Data['Current(A)'].sum()>0:
+                    mode = 'Charge'
+                    DisCharge_currents = np.append(DisCharge_currents,S_Data['Current(A)'].max()*1e3) #mA
+                elif S_Data['Current(A)'].sum()<0:
+                    mode = 'Discharge'
+                    DisCharge_currents = np.append(DisCharge_currents,S_Data['Current(A)'].min()*1e3) #mA
+                else:
+                    mode = 'Rest' #The current is zero during rest
+            else:
+                mode = "Single"
             
             #I put the single line data into a cell of the dictionary strucutre.
             data['Cycles'][Cyc_i]['Steps'].append({
-                'Step_ID':                          int(S_ind),
+                'Step':                             int(S_ind),
+                'Mode':                             str(mode),
                 'Current_High(mA)':                 float(S_Data['Current(A)'].abs().max()*1e3),
+                'Current_Median(mA)':               float(S_Data['Current(A)'].abs().median()*1e3),
                 'Current_Low(mA)':                  float(S_Data['Current(A)'].abs().min()*1e3),
-                'Voltage_High(V)':                  float(C_Data['Voltage(V)'].max()),
-                'Voltage_Low(V)':                   float(C_Data['Voltage(V)'].min()),
-                'Charge_Capacity(mAh)':             float(S_Data['Charge_Capacity(Ah)'].max()*1e3-S_Data['Charge_Capacity(Ah)'].min()*1e3),
-                'Discharge_Capacity(mAh)':          float(S_Data['Discharge_Capacity(Ah)'].max()*1e3-S_Data['Discharge_Capacity(Ah)'].min()*1e3),
+                'Voltage_High(V)':                  float(S_Data['Voltage(V)'].max()),
+                'Voltage_Low(V)':                   float(S_Data['Voltage(V)'].min()),
+                'Charge_Capacity(mAh)':             float(Charge_Cap),
+                'Discharge_Capacity(mAh)':          float(Discharge_Cap),
                 'Step_Duration(s)':                 str(S_Data['Step_Time(s)'].max()),
                 'Start_Time':                       str(S_Data['Date_Time'].min())
                 })
             
             
             
+            
             #Here I add the measurement data in each of the stepts
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Data_Point']                 = list(map(int,S_Data['Data_Point']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Cycle_Index']                = list(map(int,S_Data['Cycle_Index']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Step_Index']                 = list(map(int,S_Data['Step_Index']))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['Point']                 = list(map(int,S_Data['Data_Point']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Date_Time']                  = list(map(str,S_Data['Date_Time']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Test_Time(s)']               = list(map(float,S_Data['Test_Time(s)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Step_Time(s)']               = list(map(float,S_Data['Step_Time(s)']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Current(A)']                 = list(map(float,S_Data['Current(A)']))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['Current(mA)']                 = list(map(float,S_Data['Current(A)']*1e3))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Voltage(V)']                 = list(map(float,S_Data['Voltage(V)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Power(W)']                   = list(map(float,S_Data['Power(W)']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Charge_Capacity(Ah)']        = list(map(float,S_Data['Charge_Capacity(Ah)']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['Discharge_Capacity(Ah)']     = list(map(float,S_Data['Discharge_Capacity(Ah)']))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['Charge_Capacity(mAh)']        = list(map(float,S_Data['Charge_Capacity(Ah)']*1e3))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['Discharge_Capacity(mAh)']     = list(map(float,S_Data['Discharge_Capacity(Ah)']*1e3))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Charge_Energy(Wh)']          = list(map(float,S_Data['Charge_Energy(Wh)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Discharge_Energy(Wh)']       = list(map(float,S_Data['Discharge_Energy(Wh)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['ACR(Ohm)']                   = list(map(float,S_Data['ACR(Ohm)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['dV/dt(V/s)']                 = list(map(float,S_Data['dV/dt(V/s)']))
             data['Cycles'][Cyc_i]['Steps'][Step_i]['Internal_Resistance(Ohm)']   = list(map(float,S_Data['Internal_Resistance(Ohm)']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['dQ/dV(Ah/V)']                = list(map(float,S_Data['dQ/dV(Ah/V)']))
-            data['Cycles'][Cyc_i]['Steps'][Step_i]['dV/dQ(V/Ah)']                = list(map(float,S_Data['dV/dQ(V/Ah)']))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['dQ/dV(mAh/V)']                = list(map(float,S_Data['dQ/dV(Ah/V)']*1e3))
+            data['Cycles'][Cyc_i]['Steps'][Step_i]['dV/dQ(V/mAh)']                = list(map(float,S_Data['dV/dQ(V/Ah)']*1e-3))
 
+        
+        if len(DisCharge_currents) != 0:
+            data['Cycles'][Cyc_i]['Charge_Current(mA)'] = DisCharge_currents.max()
+            data['Cycles'][Cyc_i]['Discharge_Current(mA)'] = -DisCharge_currents.min()
+        else:
+            data['Cycles'][Cyc_i]['Charge_Current(mA)'] = np.nan
+            data['Cycles'][Cyc_i]['Discharge_Current(mA)'] = np.nan
+            
+        
+        
     #writing to json file if Output_JSON_file=True
     if Output_JSON_file:
         
@@ -423,20 +458,20 @@ def MITS_2json(filename, outfile='', Output_JSON_file=True, Pretty_JSON=False, C
     #the dictionary object is output.
     return data        
         
-def get_BatchInfo(BatchLabel, DataDirectory = 'Data/', filepath = ""):
+def get_BatchInfo(Batch, DataDirectory = 'Data/', filepath = ""):
     
     """
-    BatchInfo = get_BatchInfo(BatchLabel, DataDirectory)
+    BatchInfo = get_BatchInfo(Batch, DataDirectory)
     
-    This function returns the info from [DataDirectory]/Data_[BatchLabel]/Batch_[BatchLAbel].json as a python dict,  
+    This function returns the info from [DataDirectory]/Data_[Batch]/Batch_[Batch].json as a python dict,  
     """
     if filepath:
         BatchPath = filepath
     else:
-        BatchFolder = 'Data_'+BatchLabel
+        BatchFolder = 'Data_'+Batch
         BatchDirectory = os.path.join(DataDirectory, BatchFolder)
         
-        BatchFile = 'Batch_' + BatchLabel + '.json'
+        BatchFile = 'Batch_' + Batch + '.json'
         BatchPath = os.path.join(BatchDirectory, BatchFile)
     
     with open(BatchPath) as file:
@@ -445,41 +480,41 @@ def get_BatchInfo(BatchLabel, DataDirectory = 'Data/', filepath = ""):
     
     return BatchInfo
       
-def get_SampleInfo(BatchLabel, SampleID, DataDirectory = 'Data/', filepath = ""):
+def get_SampleInfo(Batch, Sample, DataDirectory = 'Data/', filepath = ""):
     
     """
-    SampleInfo, BatchInfo = get_SampleInfo(BatchLabel, SampleID, DataDirectory)
+    SampleInfo, BatchInfo = get_SampleInfo(Batch, Sample, DataDirectory)
     
-    This function returns the info for a sample [SampleID] from [DataDirectory]/Data_[BatchLabel]/Batch_[BatchLAbel].json as a python dict, 
+    This function returns the info for a sample [Sample] from [DataDirectory]/Data_[Batch]/Batch_[Batch].json as a python dict, 
     along with the info for the full batch, which contains information about all and each sample as well.
     
     """
     
-    BatchInfo=get_BatchInfo(BatchLabel, DataDirectory, filepath = filepath)
+    BatchInfo=get_BatchInfo(Batch, DataDirectory, filepath = filepath)
     
     try:
-        SampleInfo = BatchInfo['Samples'][str(SampleID)]
+        SampleInfo = BatchInfo['Samples'][str(Sample)]
     except KeyError: 
-        print('Batch {} contains no Sample {}. The following samples exist: {}'.format(BatchLabel, SampleID, list(BatchInfo['Samples'])))
+        print('Batch {} contains no Sample {}. The following samples exist: {}'.format(Batch, Sample, list(BatchInfo['Samples'])))
         SampleInfo = {}
     
     return SampleInfo, BatchInfo
 
-def get_SampleData(BatchLabel, SampleID, DataDirectory = 'Data/', filepath = ""):
+def get_SampleData(Batch, Sample, DataDirectory = 'Data/', filepath = ""):
     
     """
-    SampleData = get_SampleData(BatchLabel, SampleID, DataDirectory):
+    SampleData = get_SampleData(Batch, Sample, DataDirectory):
     
-    This script imports the data from [DataDirectory]/Data_[BatchLabel]/CoinCell_[SampleID]_[BatchLabel].json as a python dict
+    This script imports the data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json as a python dict
     
     """
     if filepath:
         SamplePath = filepath
     else:
-        BatchFolder = 'Data_' + BatchLabel
+        BatchFolder = 'Data_' + Batch
         BatchDirectory = os.path.join(DataDirectory, BatchFolder)
         
-        SampleFile = 'CoinCell_' + str(SampleID) + '_' + BatchLabel + '.json'
+        SampleFile = 'CoinCell_' + str(Sample) + '_' + Batch + '.json'
         SamplePath = os.path.join(BatchDirectory, SampleFile)
     
     with open(SamplePath) as file:
@@ -487,19 +522,19 @@ def get_SampleData(BatchLabel, SampleID, DataDirectory = 'Data/', filepath = "")
     
     return SampleData
 
-def get_CycleData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], filepath = ""):   
+def get_CycleData(Batch, Sample, DataDirectory = 'Data/', Properties=[], filepath = ""):   
     
     """
-    Cycle_df = get_CycleData(BatchLabel, SampleID, DataDirectory, Properties=[])
+    Cycle_df = get_CycleData(Batch, Sample, DataDirectory, Properties=[])
         
-    This function extracts the cycle-level data from [DataDirectory]/Data_[BatchLabel]/CoinCell_[SampleID]_[BatchLabel].json
+    This function extracts the cycle-level data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json
     and returns it as a pandas dataframe.
     
     The Properties argument specifies what properties should be extracted. The default is to extract all properties.
     
     """
     
-    SampleData = get_SampleData(BatchLabel, SampleID, DataDirectory, filepath = filepath)    
+    SampleData = get_SampleData(Batch, Sample, DataDirectory, filepath = filepath)    
     
     #Here I'm collecting all the keys under 'Cyclse'
     AllKeys = list(SampleData['Cycles'][0])
@@ -540,19 +575,20 @@ def get_CycleData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], 
 
     return Cycle_df
 
-def get_StepData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], filepath = ""):   
+def get_StepData(Batch, Sample, DataDirectory = 'Data/', Properties=[], filepath = ""):   
+    
         
     """
-    Step_df = get_StepData(BatchLabel, SampleID, DataDirectory, Properties=[])
+    Step_df = get_StepData(Batch, Sample, DataDirectory, Properties=[])
         
-    This function extracts the step-level data from [DataDirectory]/Data_[BatchLabel]/CoinCell_[SampleID]_[BatchLabel].json
+    This function extracts the step-level data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json
     and returns it as a pandas dataframe.
     
     The Properties argument specifies what properties should be extracted. The default is to extract all properties.
     
     """
     
-    SampleData = get_SampleData(BatchLabel, SampleID, DataDirectory, filepath = filepath) 
+    SampleData = get_SampleData(Batch, Sample, DataDirectory, filepath = filepath) 
     
     #Here I'm collecting all the keys under 'Steps'
     AllKeys = list(SampleData['Cycles'][0]['Steps'][0])
@@ -582,32 +618,39 @@ def get_StepData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], f
     NCyc = len(SampleData['Cycles'])
     for Cyc_i in range(NCyc):
         NStep = len(SampleData['Cycles'][Cyc_i]['Steps'])
+        
         for Step_i in range(NStep):
             Step_vals=[]
+            
             for key in Properties:
                 key_val = SampleData['Cycles'][Cyc_i]['Steps'][Step_i][key]
                 Step_vals.append(key_val)
                 
+            #I'm adding the cycle number as well
+            Step_vals.append(SampleData['Cycles'][Cyc_i]['Cycle'])
+                
             data.append(Step_vals)
+
+    #I'm adding a column for the cycle ID
+    cols = Properties + ['Cycle']
     
-    
-    Step_df = pd.DataFrame(data, columns = Properties)
+    Step_df = pd.DataFrame(data, columns = cols)
     
     return Step_df
 
-def get_PointData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], filepath = ""):   
+def get_PointData(Batch, Sample, DataDirectory = 'Data/', Properties=[], filepath = ""):   
     
     """
-    Point_df = get_PointData(BatchLabel, SampleID, DataDirectory, Properties=[])
+    Point_df = get_PointData(Batch, Sample, DataDirectory, Properties=[])
         
-    This function extracts the point-level data from [DataDirectory]/Data_[BatchLabel]/CoinCell_[SampleID]_[BatchLabel].json
+    This function extracts the point-level data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json
     and returns it as a pandas dataframe.
     
     The Properties argument specifies what properties should be extracted. The default is to extract all properties.
     
     """
     
-    SampleData = get_SampleData(BatchLabel, SampleID, DataDirectory, filepath = filepath)  
+    SampleData = get_SampleData(Batch, Sample, DataDirectory, filepath = filepath)  
     
     #Here I'm collecting all the keys under 'Steps'
     AllKeys = list(SampleData['Cycles'][0]['Steps'][0])
@@ -631,7 +674,9 @@ def get_PointData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], 
     
     
     #starting an empty pandas dataframe to which I then append the data stepwise.
-    Point_df = pd.DataFrame(data=[], columns = Properties)
+    cols = Properties + ['Cycle'] + ['Step']
+    
+    Point_df = pd.DataFrame(data=[], columns = cols)
     NCyc = len(SampleData['Cycles'])
     for Cyc_i in range(NCyc):
         NStep = len(SampleData['Cycles'][Cyc_i]['Steps'])
@@ -639,7 +684,10 @@ def get_PointData(BatchLabel, SampleID, DataDirectory = 'Data/', Properties=[], 
             temp_df = pd.DataFrame()
             for key in Properties:
                 temp_df[key] = SampleData['Cycles'][Cyc_i]['Steps'][Step_i][key]
-                 
+            temp_df['Cycle'] = SampleData['Cycles'][Cyc_i]['Cycle']
+            temp_df['Step'] = SampleData['Cycles'][Cyc_i]['Steps'][Step_i]['Step']
+            
+            
             Point_df = pd.concat([Point_df, temp_df], ignore_index=True)
     
     return Point_df
@@ -662,50 +710,61 @@ def get_SampleList(DataDirectory = 'Data/'):
         FolderMatch = re.findall(regexp, folder)
         #print(FolderMatch)
         if FolderMatch:
-            BatchLabel = FolderMatch[0]
-            BI = get_BatchInfo(BatchLabel, DataDirectory)
+            Batch = FolderMatch[0]
+            BI = get_BatchInfo(Batch, DataDirectory)
             Samples = list(BI['Samples'])
-            SampleList[BatchLabel]=Samples
+            SampleList[Batch]=Samples
 
             
     return SampleList
     
-def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 2):
+def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 2, ConfigFile = "Data/Supplemental/SampleConfig.json"):
     
     
-    dfBatch = pd.DataFrame(columns = ['Cycle_ID', 'Current(mA/cm2)', 'Capacity(mAh/cm2)','Capacity(mAh/gAM)', 'C-rate(1/h)', 'Thickness(um)', 'Cycler_Program', 'Wet_Thickness(um)', 'Cathode', 'SampleID', 'Batch'])
+    dfBatch = pd.DataFrame(columns = ['Cycle', 'Current(mA/cm2)', 'Capacity(mAh/cm2)','Capacity(mAh/gAM)', 'C-rate(1/h)', 'Thickness(um)', 'Cycler_Program', 'Wet_Thickness(um)', 'Cathode', 'Sample', 'Batch'])
+    
+    with open(ConfigFile) as file:
+        SampleConfig=json.load(file)
+    
 
-    for BatchLabel in list(SampleList.keys()):
-        for SampleID in SampleList[BatchLabel]:
+    for Batch in list(SampleList.keys()):
+        for Sample in SampleList[Batch]:
+            
+            if 'CapacityNorm_CycleID' in SampleConfig[Batch][Sample].keys():
+                CapacityNorm_CycleID = SampleConfig[Batch][Sample]['CapacityNorm_CycleID']
         
-            SampleInfo, BatchInfo = get_SampleInfo(BatchLabel, SampleID, DataDirectory)
+            SampleInfo, BatchInfo = get_SampleInfo(Batch, Sample, DataDirectory)
         
-            Thickness = SampleInfo['ECCthickness'] - BatchInfo['CurrentCollector']['Thickness'] #micrometer
-            Mass = (SampleInfo['ECCmass']-BatchInfo['CurrentCollector']['Mass'])*1e-3 #grams
-            Slurry_Mass = BatchInfo['Slurry']['AM']['Mass'] + BatchInfo['Slurry']['Binder']['Mass']*BatchInfo['Slurry']['Binder']['Binder_Concentration'] + BatchInfo['Slurry']['Carbon']['Mass'] #grams
-            AM_Mass_frac = BatchInfo['Slurry']['AM']['Mass']/Slurry_Mass
-            AM_Mass = Mass * AM_Mass_frac #grams
+            Cathode_Thickness = SampleInfo['ECCthickness'] - BatchInfo['CurrentCollector']['Thickness'] #micrometer
+            Cathode_Mass = (SampleInfo['ECCmass']-BatchInfo['CurrentCollector']['Mass'])*1e-3 #grams
+            Batch_AM_Mass = BatchInfo['Slurry']['AM']['Mass']
+            Batch_PVDF_Mass = BatchInfo['Slurry']['Binder']['Mass']*BatchInfo['Slurry']['Binder']['Binder_Concentration'] 
+            Batch_C_Mass = BatchInfo['Slurry']['Carbon']['Mass']
+            Batch_Total_Mass = Batch_AM_Mass + Batch_PVDF_Mass + Batch_C_Mass #grams
+            
+            AM_Mass_frac = Batch_AM_Mass/Batch_Total_Mass
+            AM_Mass = Cathode_Mass * AM_Mass_frac #grams
             
             CCd = BatchInfo['CurrentCollector']['Diameter[cm]'] #cm
             area = (CCd/2)**2*pi #cm2
         
-            df = get_CycleData(BatchLabel, SampleID, DataDirectory, Properties=['Cycle_ID', 'Discharge_Current(mA)', 'Discharge_Capacity(mAh)'])
+            df = get_CycleData(Batch, Sample, DataDirectory, Properties=['Cycle', 'Discharge_Current(mA)', 'Discharge_Capacity(mAh)'])
             
-            df.loc[:,'Current(mA/cm2)'] = -df.loc[:,'Discharge_Current(mA)']/area
+            df.loc[:,'Current(mA/cm2)'] = df.loc[:,'Discharge_Current(mA)']/area
             df.loc[:,'Capacity(mAh/cm2)'] = df.loc[:,'Discharge_Capacity(mAh)']/area
             df.loc[:,'Capacity(mAh/gAM)'] = df.loc[:,'Discharge_Capacity(mAh)']/AM_Mass
-            df.loc[:,'C-rate(1/h)'] = df.loc[:,'Current(mA/cm2)']/df.loc[df['Cycle_ID']==CapacityNorm_CycleID,'Capacity(mAh/cm2)'].values[0]
+            df.loc[:,'C-rate(1/h)'] = df.loc[:,'Current(mA/cm2)']/df.loc[df['Cycle']==CapacityNorm_CycleID,'Capacity(mAh/cm2)'].values[0]
         
             #I'm dropping the initial columns.
             df.drop(columns = ['Discharge_Current(mA)', 'Discharge_Capacity(mAh)'], inplace = True)
             
         
-            df.loc[:,'Thickness(um)'] = Thickness
+            df.loc[:,'Thickness(um)'] = Cathode_Thickness
             df.loc[:,'Cycler_Program'] = SampleInfo['Cycler_Program']
             df.loc[:,'Wet_Thickness(um)'] = SampleInfo['DoctorBlade']
             df.loc[:,'Cathode'] = BatchInfo['Slurry']['AM']['Material']
-            df.loc[:,'SampleID'] = SampleID
-            df.loc[:,'Batch'] = BatchLabel
+            df.loc[:,'Sample'] = Sample
+            df.loc[:,'Batch'] = Batch
         
             dfBatch = pd.concat([dfBatch, df], ignore_index=True)
 
@@ -725,8 +784,7 @@ def init_OtherData():
     dfnew.loc[:,'Thickness(um)']            = D['t[mu]']
     dfnew.loc[:,'Cycler_Program']           = D['Source'] + ', ' + D['Cathode']
     dfnew.loc[:,'Cathode']                  = D['Cathode']
-    dfnew.loc[:,'SampleID']                 = D['t[mu]']
-    dfnew.loc[:,'Cycle_ID']                 = np.nan
+    dfnew.loc[:,'Sample']                   = D['t[mu]'].astype(str)
     dfnew.loc[:,'Wet_Thickness(um)']        = np.nan
     
     index = D['Source'] == 'H. Zheng (2012)'
@@ -737,6 +795,13 @@ def init_OtherData():
     dfnew.loc[index,'Capacity(mAh/gAM)']        = D.loc[index,'Qm[mAh/gAM]']
     dfnew.loc[index,'Capacity(mAh/cm2)']        = D.loc[index,'Qm[mAh/gAM]']*rho*(D.loc[index,'t[mu]']*1e-4)
 
+
+    #The cycles will be in order of increasing c-rate
+    for batch in dfnew['Batch'].unique():
+        Batch_Crates = np.sort(dfnew.loc[dfnew['Batch'] == batch,'C-rate(1/h)'].unique())
+        for i, cr in enumerate(Batch_Crates):
+            index = (dfnew['Batch'] == batch) & (dfnew['C-rate(1/h)'] == cr )
+            dfnew.loc[index,'Cycle'] = int(i+1) #starting from 1
     
     
     #below I calculate 'Capacity(mAh/gAM)' and 'Current(mA/cm2)' for the two data sets
@@ -764,61 +829,90 @@ def init_OtherData():
         
     return dfnew
 
-def CRate_groups(df, ProgDict):
+def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", ConfigFile = "Data/Supplemental/SampleConfig.json"):
+    
+    #Here I load the config file where I store sample specific exceptions.
+    with open(ConfigFile) as file:
+        SampleConfig=json.load(file)
+        
+    #Here I load the file with the Cycler programs.
+    with open(CycleProgramFile) as file:
+        ProgDict=json.load(file)
+        
+    #First check what cycler program(s) is/are used for this batch.
+    Progs = df['Cycler_Program'].unique()
 
-    for i, Cyc_Prog in enumerate(list(ProgDict.keys())):
+    Batch = df['Batch'].unique()[0]
+
+    for i, Cyc_Prog in enumerate(Progs):
         
-        crates = ProgDict[Cyc_Prog]
-        
-        
-        bins = crates[:-1] + np.diff(crates)/2
-        bins = np.append(bins, crates[-1] + np.diff(crates)[-1]/2)
-        bins = np.insert(bins, 0, 0)
+        #getting the program c-rates and the cycles they apply to
+        crates = ProgDict[Cyc_Prog]["Discharge C-rates"]
+        cycles = ProgDict[Cyc_Prog]["Cycles"]
         
         for i, cr in enumerate(crates):
             
-            Crate_group = (df.loc[:,'C-rate(1/h)']>bins[i]) & (df.loc[:,'C-rate(1/h)']<=bins[i+1]) & (df.loc[:,'Cycler_Program'] == Cyc_Prog)
-            df.loc[Crate_group,'C-rate(rnd)'] = cr
-            df.loc[Crate_group,'C-rate(rnd-frac)'] = df.loc[Crate_group,'C-rate(1/h)']/cr-1
+            Crate_group = (df['Cycle'].isin(cycles[i])) & (df.loc[:,'Cycler_Program'] == Cyc_Prog)
+            df.loc[Crate_group,'C-rate(prog)'] = cr
+            df.loc[Crate_group,'C-rate(prog-frac)'] = df.loc[Crate_group,'C-rate(1/h)']/cr-1
             df.loc[Crate_group,'Avg_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].mean()
             df.loc[Crate_group,'Std_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].std()
             
-            thicks = np.sort(df.loc[df['C-rate(rnd)'] == cr,'Thickness(um)'].unique())
+            #thicks = np.sort(df.loc[df['C-rate(prog)'] == cr,'Thickness(um)'].unique())
+            #here I'm looping through all samples that share this C-rate group, and calculate each of their average Capacity and overpotentials.
+            samples = df.loc[Crate_group, 'Sample'].unique()
             
-            for tt in thicks:
-                index = (df['C-rate(rnd)'] == cr) & (df['Thickness(um)'] == tt)
-                df.loc[index,'Avg_DCapacity(mAh/cm2)'] = df.loc[index,'Capacity(mAh/cm2)'].mean()
-                df.loc[index,'Std_DCapacity(mAh/cm2)'] = df.loc[index,'Capacity(mAh/cm2)'].std()
-                df.loc[index,'Avg_DCapacity(mAh/gAM)'] = df.loc[index,'Capacity(mAh/gAM)'].mean()
-                df.loc[index,'Std_DCapacity(mAh/gAM)'] = df.loc[index,'Capacity(mAh/gAM)'].std()
+            for ss in samples:
+                index0 = (Crate_group) & (df['Sample'] == ss)
                 
-                df.loc[index,'Avg_Charge_peak(V)'] = df.loc[index,'Charge_peak(V)'].mean()
-                df.loc[index,'Std_Charge_peak(V)'] = df.loc[index,'Charge_peak(V)'].std()
-                df.loc[index,'Avg_Discharge_peak(V)'] = df.loc[index,'Discharge_peak(V)'].mean()
-                df.loc[index,'Std_Discharge_peak(V)'] = df.loc[index,'Discharge_peak(V)'].std()
-                df.loc[index,'Avg_Overpotential(V)'] = df.loc[index,'Overpotential(V)'].mean()
-                df.loc[index,'Std_Overpotential(V)'] = df.loc[index,'Overpotential(V)'].std()
+                #Some samples have broken cycles, Those are excluded.
+                if "Cap_mean_Exl_Cyc" in SampleConfig[Batch][ss].keys():
+                    Cap_mean_Exl_Cyc = SampleConfig[Batch][ss]["Cap_mean_Exl_Cyc"]
+                    indexCap = index0 & ~df['Cycle'].isin(Cap_mean_Exl_Cyc)
+                else:
+                    indexCap = index0
+                        
+                df.loc[indexCap,'Avg_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Capacity(mAh/cm2)'].mean()
+                df.loc[indexCap,'Std_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Capacity(mAh/cm2)'].std()
+                df.loc[indexCap,'Avg_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Capacity(mAh/gAM)'].mean()
+                df.loc[indexCap,'Std_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Capacity(mAh/gAM)'].std()
+                
+                #Some samples have broken cycles, Those are excluded.
+                #Currently there are no samples using this. Those that use Cap_mean_Exl_Cyc seemed fine on OP.
+                if "OP_mean_Exl_Cyc" in SampleConfig[Batch][ss].keys():
+                    OP_mean_Exl_Cyc = SampleConfig[Batch][ss]["OP_mean_Exl_Cyc"]
+                    indexOP = index0 & ~df['Cycle'].isin(OP_mean_Exl_Cyc)
+                else:
+                    indexOP = index0
+
+                df.loc[indexOP,'Avg_Charge_peak(V)'] = df.loc[indexOP,'Charge_peak(V)'].mean()
+                df.loc[indexOP,'Std_Charge_peak(V)'] = df.loc[indexOP,'Charge_peak(V)'].std()
+                df.loc[indexOP,'Avg_Discharge_peak(V)'] = df.loc[indexOP,'Discharge_peak(V)'].mean()
+                df.loc[indexOP,'Std_Discharge_peak(V)'] = df.loc[indexOP,'Discharge_peak(V)'].std()
+                df.loc[indexOP,'Avg_Overpotential(V)'] = df.loc[indexOP,'Overpotential(V)'].mean()
+                df.loc[indexOP,'Std_Overpotential(V)'] = df.loc[indexOP,'Overpotential(V)'].std()
     return df
+
 
 def get_CritRL(dfall):
     
     dfCrit = pd.DataFrame()
     
     for name, group in dfall.groupby(by=['Batch']):    
-        crts = np.sort(group['C-rate(rnd)'].dropna().unique())
+        crts = np.sort(group['C-rate(prog)'].dropna().unique())
     
         df = pd.DataFrame()
-        df['C-rate(rnd)'] = crts
+        df['C-rate(prog)'] = crts
         df['Batch'] = name
         df['Cathode'] = group['Cathode'].values[0]
     
     
         for cr in crts:
         
-            dfcp = group[group['C-rate(rnd)'] == cr].copy()
+            dfcp = group[group['C-rate(prog)'] == cr].copy()
             
-            df.loc[df['C-rate(rnd)'] == cr,'C-rate_mean(1/h)'] = dfcp['C-rate(1/h)'].mean()
-            df.loc[df['C-rate(rnd)'] == cr,'C-rate_std(1/h)'] = dfcp['C-rate(1/h)'].std()
+            df.loc[df['C-rate(prog)'] == cr,'C-rate_mean(1/h)'] = dfcp['C-rate(1/h)'].mean()
+            df.loc[df['C-rate(prog)'] == cr,'C-rate_std(1/h)'] = dfcp['C-rate(1/h)'].std()
         
             index = dfcp['Avg_DCapacity(mAh/cm2)'] == dfcp['Avg_DCapacity(mAh/cm2)'].max()
             maxCap = dfcp.loc[index,'Avg_DCapacity(mAh/cm2)'].values[0]
@@ -826,8 +920,8 @@ def get_CritRL(dfall):
             index = dfcp['Avg_DCapacity(mAh/cm2)']==maxCap
             maxCapTh = dfcp.loc[index, 'Thickness(um)'].values[0]
            
-            df.loc[df['C-rate(rnd)'] == cr,'Avg_DCapacity_max(mAh/cm2)'] = maxCap
-            df.loc[df['C-rate(rnd)'] == cr,'Thickness_max(um)'] = maxCapTh
+            df.loc[df['C-rate(prog)'] == cr,'Avg_DCapacity_max(mAh/cm2)'] = maxCap
+            df.loc[df['C-rate(prog)'] == cr,'Thickness_max(um)'] = maxCapTh
             
             dfcptt = dfcp['Thickness(um)'].unique()
             #calculating error bar of the critical thickness. taking halfway to adjacent points
@@ -843,15 +937,19 @@ def get_CritRL(dfall):
             else:
                 crit_hi = np.nan
             
-            df.loc[df['C-rate(rnd)'] == cr,'Thickness_lo(um)'] = crit_lo
-            df.loc[df['C-rate(rnd)'] == cr,'Thickness_hi(um)'] = crit_hi
+            df.loc[df['C-rate(prog)'] == cr,'Thickness_lo(um)'] = crit_lo
+            df.loc[df['C-rate(prog)'] == cr,'Thickness_hi(um)'] = crit_hi
             
         dfCrit = pd.concat([dfCrit,df], ignore_index=True)
         
     return dfCrit
 
-def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.array([]), Dcap_Lim = 0.3, filter_V_lim = (4.1, 4.38), dqdv2_filter_lim = 4.25):
+
+def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.08, Incl_Cyc = np.array([]), Dcap_Lim = 0.3, filter_V_lim = (4.1, 4.38), dqdv2_filter_lim = 4.25, ConfigFile = "Data/Supplemental/SampleConfig.json"):
     
+    #Here I load the config file where I store sample specific exceptions.
+    with open(ConfigFile) as file:
+        SampleConfig=json.load(file)
     
     if Plot:
         fig, ax1= plt.subplots(figsize=(13,6))
@@ -863,21 +961,21 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
     df = get_PointData(Batch, Sample)
     df_cyc = get_CycleData(Batch, Sample)
     
-    OPdf = pd.DataFrame(columns=['Cycle_ID', 'Charge_peak(V)', 'Charge_peak_dQdV(Ah/V)', 'Discharge_peak(V)', 'Discharge_peak_dQdV(Ah/V)', 'Overpotential(V)','SG_window_charge','SG_window_discharge'])
-    OPdf.loc[:, 'Cycle_ID'] = df_cyc['Cycle_ID'].unique()
+    OPdf = pd.DataFrame(columns=['Cycle', 'Charge_peak(V)', 'Charge_peak_dQdV(mAh/V)', 'Discharge_peak(V)', 'Discharge_peak_dQdV(mAh/V)', 'Overpotential(V)','SG_window_charge','SG_window_discharge'])
+    OPdf.loc[:, 'Cycle'] = df_cyc['Cycle'].unique()
     
-    df_dQdV = pd.DataFrame(columns=['Cycle_ID', 'Step_ID', 'mode', 'Voltage(V)', 'dQdV_smooth(Ah/V)','dQdV(Ah/V)'])
+    df_dQdV = pd.DataFrame(columns=['Cycle', 'Step_ID', 'mode', 'Voltage(V)', 'dQdV_smooth(mAh/V)','dQdV(mAh/V)'])
     
     if ~Incl_Cyc.any():
-        Incl_Cyc = df_cyc['Cycle_ID'].unique()
+        Incl_Cyc = df_cyc['Cycle'].unique()
     
-    groups = df.groupby(by=['Cycle_Index','Step_Index'])
+    groups = df.groupby(by=['Cycle','Step'])
     
     dcap=np.array([])
     
     for name, group in groups:
         
-        TotCap = group.loc[:, 'Current(A)'].sum() 
+        TotCap = group.loc[:, 'Current(mA)'].sum() 
         if TotCap > 0:
             mode = "Charge"
         elif TotCap < 0:
@@ -887,19 +985,25 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
         
         #I only unclude cycles that have some minimumum capacity
         #that minimum is a fraction(Dcap_Lim=0.3) of the initial cycle capacity
-        Dcap = df_cyc.loc[df_cyc['Cycle_ID']==name[0],'Discharge_Capacity(mAh)'].values
+        Dcap = df_cyc.loc[df_cyc['Cycle']==name[0],'Discharge_Capacity(mAh)'].values
         dcap = np.append(dcap,Dcap)
         
         #var = pd.DataFrame()
         
-        if (mode != "Rest") & (Dcap/dcap[0]>Dcap_Lim) & (name[0] in Incl_Cyc):
+        #Some samples have broken cycles, Those are excluded.
+        if "OP_Cyc_Excl" in SampleConfig[Batch][Sample].keys():
+            OP_Cyc_Excl = SampleConfig[Batch][Sample]["OP_Cyc_Excl"]
+        else:
+            OP_Cyc_Excl = []
+        
+        if (mode != "Rest") & (Dcap/dcap[0]>Dcap_Lim) & (name[0] in Incl_Cyc) & (len(group)>1) & (name[0] not in OP_Cyc_Excl):
     
             # * good to remember. .to_numpy() should always specify the type. if you dont it defaults to "object" which doesn't work with np.isnan() and np.gradient.
             V = group.loc[:,'Voltage(V)'].to_numpy(dtype=float)
             if mode == 'Charge': 
-                Q = group.loc[:,'Charge_Capacity(Ah)'].to_numpy(dtype=float)
+                Q = group.loc[:,'Charge_Capacity(mAh)'].to_numpy(dtype=float)
             elif mode == 'Discharge': 
-                Q = group.loc[:,'Discharge_Capacity(Ah)'].to_numpy(dtype=float)
+                Q = group.loc[:,'Discharge_Capacity(mAh)'].to_numpy(dtype=float)
             
             #V has adjacent points with identical value, this causes np.gradient to throw an ZeroDivisionError. Therefore I'm replacing the corresponding Q values by their average and remove one point.
             
@@ -971,10 +1075,10 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     
                     peak_index = dqdvtemp == dqdvtemp.max()
                     peakV = vtemp[peak_index]
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Charge_peak(V)'] = peakV
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Charge_peak_dQdV(Ah/V)'] = dqdvtemp.max()
+                    OPdf.loc[OPdf['Cycle']==name[0], 'Charge_peak(V)'] = peakV
+                    OPdf.loc[OPdf['Cycle']==name[0], 'Charge_peak_dQdV(mAh/V)'] = dqdvtemp.max()
                     
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'SG_window_charge'] = SG_window
+                    OPdf.loc[OPdf['Cycle']==name[0], 'SG_window_charge'] = SG_window
                     
                     
                     
@@ -988,16 +1092,17 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                             ax2.vlines(dqdv2_filter_lim, min(dqdv2_V), max(dqdv2_V), linestyle = '--', color = 'r')
                     
                     
-                    data = {'Cycle_ID': [name[0]] * len(vtemp),
+                    data = {'Cycle': [name[0]] * len(vtemp),
                             'mode': [mode] * len(vtemp),
                             'SG_window': [SG_window] * len(vtemp),
                             'Voltage(V)': vtemp,
-                            'dQdV_smooth(Ah/V)' :dqdvtemp,
-                            'dQdV(Ah/V)' : dQdV_save}
+                            'dQdV_smooth(mAh/V)' :dqdvtemp,
+                            'dQdV(mAh/V)' : dQdV_save}
                     
                     dftemp = pd.DataFrame(data=data)
                     
-                    df_dQdV = df_dQdV.append(dftemp, ignore_index=True)
+                    df_dQdV = pd.concat([df_dQdV, dftemp], ignore_index=True)
+                    
                     
                      
                         
@@ -1013,7 +1118,7 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                 #from where the discharge step starts (after rest)
                 
                 index = np.array([False] * len(V))
-                index[:int(pts_per_volt*0.4)] = True
+                index[:int(pts_per_volt*0.5)] = True
 
                 if sum(index) >= SG_window:
 
@@ -1025,26 +1130,26 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
                     peak_index = dqdvtemp == dqdvtemp.min()
                     peakV = vtemp[peak_index]
     
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Discharge_peak(V)'] = peakV
+                    OPdf.loc[OPdf['Cycle']==name[0], 'Discharge_peak(V)'] = peakV
                     
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'Discharge_peak_dQdV(Ah/V)'] = dqdvtemp.min()
+                    OPdf.loc[OPdf['Cycle']==name[0], 'Discharge_peak_dQdV(mAh/V)'] = dqdvtemp.min()
                     
-                    OPdf.loc[OPdf['Cycle_ID']==name[0], 'SG_window_discharge'] = SG_window
+                    OPdf.loc[OPdf['Cycle']==name[0], 'SG_window_discharge'] = SG_window
 
                     if Plot:
                         ax1.plot(vtemp,dqdvtemp, marker='.', linestyle ='-', color = colors[np.mod(name[0],len(colors))])
                         ax1.plot(peakV, dqdvtemp.min(), marker = 'o', alpha = 0.5, color = 'k', markersize=10)
                     
-                    data = {'Cycle_ID': [name[0]] * len(vtemp),
+                    data = {'Cycle': [name[0]] * len(vtemp),
                             'mode': [mode] * len(vtemp),
                             'SG_window': [SG_window] * len(vtemp),
                             'Voltage(V)': vtemp,
-                            'dQdV_smooth(Ah/V)' : dqdvtemp,
-                            'dQdV(Ah/V)' : dQdV[index]}
+                            'dQdV_smooth(mAh/V)' : dqdvtemp,
+                            'dQdV(mAh/V)' : dQdV[index]}
                     
                     dftemp = pd.DataFrame(data=data)
                     
-                    df_dQdV = df_dQdV.append(dftemp, ignore_index=True)
+                    df_dQdV = pd.concat([df_dQdV, dftemp], ignore_index=True)
     
                 
                 
@@ -1053,7 +1158,7 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
     
     
     if Plot:
-        ax1.set_ylabel('dQ/dV [Ah/V]', fontsize = 16)
+        ax1.set_ylabel('dQ/dV [mAh/V]', fontsize = 16)
         ax1.set_xlabel('Voltage [V]', fontsize = 16)
         ax1.set_title('B: ' + Batch + ', S: ' + Sample)
         if Plot ==2:
@@ -1070,27 +1175,27 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.05, Incl_Cyc = np.ar
 
 def OPSampleList(SampleList, **kwargs):
     
-    OPall = pd.DataFrame()
+    OPall = pd.DataFrame(columns=['Batch', 'Sample', 'Cycle', 'Charge_peak(V)', 'Charge_peak_dQdV(mAh/V)', 'Discharge_peak(V)', 'Discharge_peak_dQdV(mAh/V)', 'Overpotential(V)','SG_window_charge','SG_window_discharge'])
     
     for batch in SampleList.keys():
         for sample in SampleList[batch]:
-            OPdf = get_overpotential(batch, sample, **kwargs)
-            OPdf['SampleID'] = sample
+            OPdf, _ = get_overpotential(batch, sample, **kwargs)
+            OPdf['Sample'] = sample
             OPdf['Batch'] = batch
             
-            ('B: ' + batch + ', S: ' + sample)
+            print('B: ' + batch + ', S: ' + sample)
             OPall = pd.concat([OPall,OPdf], ignore_index = True)
             
     
     return OPall
             
     
-def get_ChargeDischarge(BatchLabel, SampleID, DataDirectory='Data/'):
+def get_ChargeDischarge(Batch, Sample, DataDirectory='Data/'):
     
     
-    df_Charge_Discharge = pd.DataFrame(columns=['Cycle_Index', 'Step_Index','Charge_Capacity(mAh/cm2)','Charge_Capacity(mAh/gAM)', 'Discharge_Capacity(mAh/cm2)','Discharge_Capacity(mAh/gAM)', 'Voltage(V)', 'C-rate(1/h)'])
+    df_Charge_Discharge = pd.DataFrame(columns=['Cycle', 'Step','Charge_Capacity(mAh/cm2)','Charge_Capacity(mAh/gAM)', 'Discharge_Capacity(mAh/cm2)','Discharge_Capacity(mAh/gAM)', 'Voltage(V)', 'C-rate(1/h)'])
     
-    SampleInfo, BatchInfo = get_SampleInfo(BatchLabel, SampleID, DataDirectory)
+    SampleInfo, BatchInfo = get_SampleInfo(Batch, Sample, DataDirectory)
     Prog = SampleInfo['Cycler_Program']
     
     Cathode_Diameter = BatchInfo['CurrentCollector']['Diameter[cm]']
@@ -1107,17 +1212,17 @@ def get_ChargeDischarge(BatchLabel, SampleID, DataDirectory='Data/'):
     Cathode_AM_Mass = Cathode_Mass * AM_Mass_frac #grams
     
     
-    df = get_PointData(BatchLabel, SampleID, DataDirectory, Properties=['Cycle_Index', 'Step_Index', 'Charge_Capacity(Ah)', 'Discharge_Capacity(Ah)', 'Voltage(V)', 'Current(A)'])
+    df = get_PointData(Batch, Sample, DataDirectory, Properties=['Cycle', 'Step', 'Charge_Capacity(Ah)', 'Discharge_Capacity(Ah)', 'Voltage(V)', 'Current(A)'])
   
     
-    df_Charge_Discharge['Cycle_Index'] = df.loc[:,'Cycle_Index']
-    df_Charge_Discharge.loc[:,'Step_Index'] = df.loc[:,'Step_Index']
+    df_Charge_Discharge['Cycle'] = df.loc[:,'Cycle']
+    df_Charge_Discharge.loc[:,'Step'] = df.loc[:,'Step']
     df_Charge_Discharge.loc[:,'Charge_Capacity(mAh/cm2)'] = df.loc[:,'Charge_Capacity(Ah)']*1e3/Cathode_Area
     df_Charge_Discharge.loc[:,'Charge_Capacity(mAh/gAM)'] = df.loc[:,'Charge_Capacity(Ah)']*1e3/Cathode_AM_Mass
     df_Charge_Discharge.loc[:,'Discharge_Capacity(mAh/cm2)'] = df.loc[:,'Discharge_Capacity(Ah)']*1e3/Cathode_Area
     df_Charge_Discharge.loc[:,'Discharge_Capacity(mAh/gAM)'] = df.loc[:,'Discharge_Capacity(Ah)']*1e3/Cathode_AM_Mass
     df_Charge_Discharge.loc[:,'Voltage(V)'] = df.loc[:,'Voltage(V)']
-    df_Charge_Discharge.loc[:,'C-rate(1/h)'] = df.loc[:,'Current(A)'] / df.loc[df['Cycle_Index']==2,'Discharge_Capacity(Ah)'].max()
+    df_Charge_Discharge.loc[:,'C-rate(1/h)'] = df.loc[:,'Current(A)'] / df.loc[df['Cycle']==2,'Discharge_Capacity(Ah)'].max()
     
     
     

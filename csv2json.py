@@ -5,6 +5,7 @@ Created on Mon Nov 22 15:45:49 2021
 
 @author: martin
 """
+#%%
 
 import Cycler
 from Cycler import BTS_csv2json, MITS_2json
@@ -22,6 +23,27 @@ def list_files(dir):
     return r
 
 
+
+
+#%%
+
+#datafolder = r'Data/Data_220203_NMC/Martin_0203_2_2022_03_04_172442'
+#datafolder = "Data/Data_220203_NMC/raw"
+datafolder = 'Data/Data_211202_NMC/CoinCell_RAW_211202_NMC'
+r = list_files(datafolder)
+
+
+
+regexp=".*\.CSV$"
+
+for file in r:
+    if re.search(regexp, file):
+        MITS_2json(file, CSV=True)
+        print("Finished: {}".format(file))
+                
+
+
+
 #%%
 
 
@@ -34,23 +56,6 @@ for file in r:
     if re.search(regexp, file):
         BTS_csv2json(file)
         print("Finished: {}".format(file))
-
-
-#%%
-
-#datafolder = r'Data/Data_220203_NMC/Martin_0203_2_2022_03_04_172442'
-datafolder = r'Data/Data_220203_NMC/martin_0203_01cC_2022_03_07_182629'
-r = list_files(datafolder)
-
-
-
-regexp=".*\.xlsx$"
-
-for file in r:
-    if re.search(regexp, file):
-        MITS_2json(file, CSV=False)
-        print("Finished: {}".format(file))
-                
 
 #%%
 
