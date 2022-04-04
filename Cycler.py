@@ -811,15 +811,15 @@ def init_OtherData():
     dfnew.loc[:,'Wet_Thickness(um)']        = np.nan
     
     index = D['Source'] == 'H. Zheng (2012)'
-    dfnew.loc[index,'Capacity(mAh/cm2)']        = D.loc[index,'Qa[mAh/cm2]']
+    dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']        = D.loc[index,'Qa[mAh/cm2]']
     
     index = D['Source'] == 'M. Singh (2016)'
-    dfnew.loc[index,'Capacity(mAh/cm2)']        = D.loc[index,'Q[mAh]']/25
+    dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']        = D.loc[index,'Q[mAh]']/25
     
     index = D['Source'] == 'D.Y.W. Yu (2006)'
     rho=2.2
-    dfnew.loc[index,'Capacity(mAh/gAM)']        = D.loc[index,'Qm[mAh/gAM]']
-    dfnew.loc[index,'Capacity(mAh/cm2)']        = D.loc[index,'Qm[mAh/gAM]']*rho*(D.loc[index,'t[mu]']*1e-4)
+    dfnew.loc[index,'Discharge_Capacity(mAh/gAM)']        = D.loc[index,'Qm[mAh/gAM]']
+    dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']        = D.loc[index,'Qm[mAh/gAM]']*rho*(D.loc[index,'t[mu]']*1e-4)
     
     
     #below I calculate 'Capacity(mAh/gAM)' and 'Current(mA/cm2)' for the two data sets
@@ -832,10 +832,10 @@ def init_OtherData():
     for i, ti in enumerate(tt_ZH):
         index = (dfnew['Batch'] == 'H. Zheng (2012), ' + cat_ZH[i]) & (dfnew['Thickness(um)'] == ti) & (dfnew['Cathode'] == cat_ZH[i])
         
-        dfnew.loc[index,'Capacity(mAh/gAM)'] = dfnew.loc[index,'Capacity(mAh/cm2)']/(AMl_ZH[i])
+        dfnew.loc[index,'Discharge_Capacity(mAh/gAM)'] = dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']/(AMl_ZH[i])
         
-        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Capacity(mAh/cm2)'].mean()
-        dfnew.loc[index,'Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
+        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Discharge_Capacity(mAh/cm2)'].mean()
+        dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
     
     #AM loadings to calculate mass capacity of M. Singh
     AMl_MS = np.array([18,30,42,54,67,82]) #mg/cm2
@@ -844,17 +844,17 @@ def init_OtherData():
     for i, ti in enumerate(tt_MS):
         index = (dfnew['Batch'] == 'M. Singh (2016), NMC') & (dfnew['Thickness(um)'] == ti)
         
-        dfnew.loc[index,'Capacity(mAh/gAM)'] = dfnew.loc[index,'Capacity(mAh/cm2)']/(AMl_MS[i])
+        dfnew.loc[index,'Discharge_Capacity(mAh/gAM)'] = dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']/(AMl_MS[i])
         
-        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Capacity(mAh/cm2)'].mean()
-        dfnew.loc[index,'Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
+        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Discharge_Capacity(mAh/cm2)'].mean()
+        dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
     
     index = (dfnew['Batch'] == 'D.Y.W. Yu (2006), LFP') 
     tt_DYW = dfnew.loc[index, 'Thickness(um)'].unique()
     for ti in tt_DYW:
         index = (dfnew['Batch'] == 'D.Y.W. Yu (2006), LFP') & (dfnew['Thickness(um)'] == ti)
-        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Capacity(mAh/cm2)'].mean()
-        dfnew.loc[index,'Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C 
+        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Discharge_Capacity(mAh/cm2)'].mean()
+        dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C 
         
     return dfnew
 
@@ -886,8 +886,8 @@ def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", Co
             df.loc[Crate_group,'C-rate(prog-frac)'] = df.loc[Crate_group,'C-rate(1/h)']/cr-1
             df.loc[Crate_group,'Avg_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].mean()
             df.loc[Crate_group,'Std_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].std()
-            df.loc[Crate_group,'Avg_Current(mA/cm2)'] = df.loc[Crate_group,'Current(mA/cm2)'].mean()
-            df.loc[Crate_group,'Std_Current(mA/cm2)'] = df.loc[Crate_group,'Current(mA/cm2)'].std()
+            df.loc[Crate_group,'Avg_Current(mA/cm2)'] = df.loc[Crate_group,'Discharge_Current(mA/cm2)'].mean()
+            df.loc[Crate_group,'Std_Current(mA/cm2)'] = df.loc[Crate_group,'Discharge_Current(mA/cm2)'].std()
             
             #thicks = np.sort(df.loc[df['C-rate(prog)'] == cr,'Thickness(um)'].unique())
             #here I'm looping through all samples that share this C-rate group, and calculate each of their average Capacity and overpotentials.
@@ -903,10 +903,10 @@ def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", Co
                 else:
                     indexCap = index0
                         
-                df.loc[indexCap,'Avg_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Capacity(mAh/cm2)'].mean()
-                df.loc[indexCap,'Std_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Capacity(mAh/cm2)'].std()
-                df.loc[indexCap,'Avg_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Capacity(mAh/gAM)'].mean()
-                df.loc[indexCap,'Std_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Capacity(mAh/gAM)'].std()
+                df.loc[indexCap,'Avg_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Discharge_Capacity(mAh/cm2)'].mean()
+                df.loc[indexCap,'Std_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Discharge_Capacity(mAh/cm2)'].std()
+                df.loc[indexCap,'Avg_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Discharge_Capacity(mAh/gAM)'].mean()
+                df.loc[indexCap,'Std_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Discharge_Capacity(mAh/gAM)'].std()
                 
                 #Some samples have broken cycles, Those are excluded.
                 #Currently there are no samples using this. Those that use Cap_mean_Exl_Cyc seemed fine on OP.
@@ -981,30 +981,55 @@ def get_CapCrit(dfall):
 
 def get_OPCrit(dfall, L0=57):
     
-    dfOPCrit = pd.DataFrame()        
+    dfOPCrit = pd.DataFrame(columns = ['Crit_C-rate(1/h)', 'Crit_C-rate_hi(1/h)', 'Crit_C-rate_lo(1/h)', 'Batch', 'Sample','Thickness(um)']) 
+        
     for (batch, sample), group in dfall.groupby(by = ['Batch', 'Sample']):
         
-        df = pd.DataFrame()
+        #df = pd.DataFrame(columns = ['Crit_C-rate(1/h)', 'Crit_C-rate_hi(1/h)', 'Crit_C-rate_lo(1/h)', 'Batch', 'Sample','Thickness(um)'])
         
         cc = group['Avg_C-rate(1/h)'].to_numpy(dtype=float)
         ld = group['Avg_Penetration_Depth(x/L0)'].to_numpy(dtype=float)
+        thickness = group['Thickness(um)'].unique()[0]
+        
+        #im ignoring all points after the first nan, including. 
+        nani = np.argmax(np.isnan(ld))-1
+        cc = cc[:nani]
+        ld = ld[:nani]
         
         Ldiff = ld*L0
         
-        C_crit = np.interp(tt,np.flip(Ldiff),np.flip(cc))
-        Ctemp = cc - C_crit
-        C_crit_hi = min(Ctemp[Ctemp>0])
-        C_crit_lo = -max(Ctemp[Ctemp<0])
-        
-        df['Crit_C-rate(1/h)'] = C_crit
-        df['Crit_C-rate_hi(1/h)'] = C_crit_hi
-        df['Crit_C-rate_lo(1/h)'] = C_crit_lo
-        df['Batch'] = batch
-        df['Sample'] = sample
-        df['Thickness(um)'] = group['Thickness(um)'].unique()[0]
-        
+        if ~np.all(np.diff(Ldiff) > 0):
+            isort = np.argsort(Ldiff)
+            Ldiff = Ldiff[isort]
+            cc = cc[isort]
     
-    dfOPCrit = pd.concat([dfOPCrit,df], ignore_index=True)
+        if (thickness <= max(Ldiff)) & (thickness >= min(Ldiff)):
+            C_crit = np.interp(thickness,Ldiff,cc)
+            Ctemp = cc - C_crit
+            C_crit_hi = min(Ctemp[Ctemp>0])
+            C_crit_lo = -max(Ctemp[Ctemp<0])
+        else:
+            C_crit = np.nan
+            C_crit_hi = np.nan
+            C_crit_lo = np.nan
+        
+        #df.loc[:,'Crit_C-rate(1/h)'] = C_crit
+        #df.loc[:,'Crit_C-rate_hi(1/h)'] = C_crit_hi
+        #df.loc[:,'Crit_C-rate_lo(1/h)'] = C_crit_lo
+        #df.loc[:,'Batch'] = batch
+        #df.loc[:,'Sample'] = sample
+        #df.loc[:,'Thickness(um)'] = thickness
+        
+        data = {'Crit_C-rate(1/h)': C_crit,
+                'Crit_C-rate_hi(1/h)': C_crit_hi,
+                'Crit_C-rate_lo(1/h)': C_crit_lo,
+                'Batch': batch,
+                'Sample' : sample,
+                'Thickness(um)' : thickness}
+                    
+        df = pd.DataFrame(data=data, index = [0])
+                    
+        dfOPCrit = pd.concat([dfOPCrit,df], ignore_index=True)
             
     return dfOPCrit
 

@@ -52,12 +52,15 @@ def dfall_dfCrit(read_json = True, write_json = False):
         #here i'm groupding the c-rates within each Batch.
         dfall = dfall.groupby('Batch').apply(Cycler.CRate_groups)
         
-        
         dfCapCrit = Cycler.get_CapCrit(dfall)
+        
+        dfOPCrit = Cycler.get_OPCrit(dfall)
+
         
         if write_json:
             dfall.to_json("dfall.json")
             dfCapCrit.to_json("dfCapCrit.json")
+            dfOPCrit.to_json("dfOPCrit.json")
         
     else:
         
@@ -69,10 +72,14 @@ def dfall_dfCrit(read_json = True, write_json = False):
         with open("dfCapCrit.json") as file:
             dfCapCrit_dict=json.load(file)
             dfCapCrit = pd.DataFrame.from_dict(dfCapCrit_dict)
+            
+        with open("dfOPCrit.json") as file:
+            dfOPCrit_dict=json.load(file)
+            dfOPCrit = pd.DataFrame.from_dict(dfOPCrit_dict)
         
 
     
-    return dfall, dfCapCrit
+    return dfall, dfCapCrit, dfOPCrit
 
 
 

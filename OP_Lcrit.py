@@ -13,11 +13,15 @@ import matplotlib
 import numpy as np
 from scipy.optimize import fmin
 import Cycler
+import simplejson as json
+import pandas as pd
+
 
 #%%
 
-dfall, dfCrit = main.dfall_dfCrit(read_json = False, write_json = True)
-#dfall, dfCrit = main.dfall_dfCrit()
+#dfall, dfCapCrit, dfOPCrit = main.dfall_dfCapCrit(read_json = False, write_json = True)
+dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit()
+
 
 #%%
 
@@ -34,39 +38,11 @@ for name, group in dfall.groupby(by = ['Sample']):
 
 #dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
 #dfplot = dfall.loc[dfall['Batch']=='220203_NMC'].copy()
-dfplot = dfall.loc[dfall['Batch'].isin(['211202_NMC','220203_NMC'])].copy()
+#dfplot = dfall.loc[dfall['Batch'].isin(['211202_NMC','220203_NMC'])].copy()
+
+BatchList = ['211202_NMC','220203_NMC']
 
 fig, ax= plt.subplots(figsize=(13,6))
-
-n = 1 # 1
-R = 8.314 # J/molK
-T = 278 #K
-F = 96485.3329 # C/mol
-b=2*R*T/(n*F) #V
-
-sig_l = 9.169e-3 # S/cm
-i0 = 7.2e-4 # A/cm2
-S = 9.3e3 # cm2/cm3
-
-rho_l = 1/sig_l #Ohm cma
-
-#L0 = np.sqrt(b/(2*i0*S*rho_l))*1e4 #um
-
-Jd = 0.01
-L0 = 57
-
-xmin = 1e-1
-xmax = 2.1e1
-
-#ymin = 0
-#ymax = 200
-
-#ax.set_ylim((ymin, ymax))
-ax.set_xlim((xmin, xmax))
-
-
-eta_d = lambda Jd, eta0: b*np.arcsinh(Jd*np.sinh(eta0/b)) 
-Ld = lambda L0, Jd, eta0: np.log( np.tanh( eta0/(4*b) )/np.tanh( eta_d(Jd,eta0)/(4*b) ))
 
 Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
 markers = ['o', 'v', 's', '^']
@@ -106,29 +82,13 @@ def markerfun(wt, ttss):
     return mark
 
 
-
-ttss=np.array([])
-wtt=np.array([])
-ccc = np.array([])
+"""
+L0 = 57
+ttss = np.array([])
+wtt = np.array([])
 ttt = np.array([])
-for name, group in dfplot.groupby(by = ['Batch', 'Sample']):
-    cc = group['Avg_C-rate(1/h)'].to_numpy(dtype=float)
-    cce = group['Std_C-rate(1/h)'].to_numpy(dtype=float)
-    nn = group['Avg_Overpotential(V)'].to_numpy(dtype=float)
-    nne = group['Std_Overpotential(V)'].to_numpy(dtype=float)
-    
-    #im ignoring all points after the first nan, including. 
-    nani = np.argmax(np.isnan(nn))-1
-    cc = np.unique(cc[:nani])
-    cce = np.unique(cce[:nani])
-    nn = np.unique(nn[:nani])
-    nne = np.unique(nne[:nani])
-    
-    ld = Ld(L0,Jd,nn)
-    ldep = abs(ld - Ld(L0,Jd,nn+nne))
-    lden = abs(ld - Ld(L0,Jd,nn-nne))
-    lde = np.stack([lden,ldep])
-    
+for name, group in dfall.loc[dfall['Batch'].isin(BatchList), :].groupby(by = ['Batch']):
+
     tt = group['Thickness(um)'].unique()[0]
     wt = group['Wet_Thickness(um)'].unique()[0]
     
@@ -136,29 +96,25 @@ for name, group in dfplot.groupby(by = ['Batch', 'Sample']):
     wtt = np.append(wtt, wt)
     ttt = np.append(ttt,tt)
     
+    index = group['Cycle']<30
+    ld = group.loc[index,'Avg_Penetration_Depth(x/L0)'].to_numpy(dtype=float)
     Ldiff = ld*L0
+    cc = group.loc[index,'Avg_C-rate(1/h)'].to_numpy(dtype=float)
     
-    Cc = np.interp(tt,np.flip(Ldiff),np.flip(cc))
-    ccc = np.append(ccc,Cc)
-    
-    ax.plot(Cc, tt, marker=markerfun(wt,ttss[-1]), markerfacecolor=colfun(wt), markersize=15, alpha=0.5, color = 'k', zorder =100)
-    ax.hlines(tt,0.1,Cc,color = colfun(wt), linestyle = '--', zorder = 0)    
-    
-    ax.plot(cc, Ldiff, marker=markerfun(wt,ttss[-1]),linestyle='-', color=colfun(wt), label=tt)
+    #ax.plot(cc, Ldiff, marker=markerfun(wt,ttss[-1]),linestyle='-', color=colfun(wt), label=tt)
+    ax.plot(cc, Ldiff, marker='o',linestyle='-', color='g', label=tt)
 
 
+"""
 
 
+#df = dfCapCrit.loc[dfCapCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].copy()
 
-#df = dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].copy()
-
-for name, group in dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].groupby(by = ['Batch']):
+for name, group in dfCapCrit.loc[dfCapCrit['Batch'].isin(BatchList), :].groupby(by = ['Batch']):
     
     df = group
 
     Cc = df.loc[:, 'C-rate(prog)']
-
-
     #index2 = (Cc > 0.1) & (Cc < 4.8) 
     index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
 
@@ -172,12 +128,32 @@ for name, group in dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC'])
     ax.errorbar(xx, yy, yerr = ee, 
                     marker = 'o', 
                     linestyle = '-', 
-                    color = '#e36414', 
+                    color = 'r', 
                     capsize = 3, 
                     label = name, 
                     markersize=8, 
                     linewidth = 3, 
                     zorder = 110)
+
+
+for name, df in dfOPCrit.loc[dfOPCrit['Batch'].isin(BatchList), :].groupby(by = ['Batch']):
+    xx = df['Crit_C-rate(1/h)'].to_numpy(dtype=float)
+    yy = df['Thickness(um)'].to_numpy(dtype=float)
+        
+    lo = df['Crit_C-rate_lo(1/h)'].to_numpy(dtype=float)
+    hi = df['Crit_C-rate_hi(1/h)'].to_numpy(dtype=float)
+    ee = np.vstack([lo,hi])
+
+    ax.errorbar(xx, yy, xerr = ee, 
+                    marker = 'o', 
+                    linestyle = '-', 
+                    color = 'k', 
+                    capsize = 3, 
+                    label = name, 
+                    markersize=8, 
+                    linewidth = 3, 
+                    zorder = 110)
+
 
 
 Leg_kwargs = {'loc': 'upper right', 'bbox_to_anchor' : (1.01, 1.05)}
