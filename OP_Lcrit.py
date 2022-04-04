@@ -12,26 +12,29 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 from scipy.optimize import fmin
+import Cycler
 
 #%%
 
-#dfall, dfCrit = main.dfall_dfCrit(read_json = False, write_json = True)
-dfall, dfCrit = main.dfall_dfCrit()
+dfall, dfCrit = main.dfall_dfCrit(read_json = False, write_json = True)
+#dfall, dfCrit = main.dfall_dfCrit()
 
 #%%
 
 fig, ax= plt.subplots(figsize=(13,6))
 
-ax.set_xlabel('Cycle_ID')
+ax.set_xlabel('Cycle')
 ax.set_ylabel('Overpotential [V]')
-
-for name, group in dfall[dfall['Batch']=='211202_NMC'].groupby(by = ['SampleID']):
-    group.plot(x='Cycle_ID', y='Overpotential(V)', marker='.', linestyle='-', ax=ax, label=name)
+#dfall['Batch']=='211202_NMC'
+for name, group in dfall.groupby(by = ['Sample']):
+    group.plot(x='Cycle', y='Overpotential(V)', marker='.', linestyle='-', ax=ax, label=name)
     
 
 #%% Calculating diffusion depth
 
-dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
+#dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
+#dfplot = dfall.loc[dfall['Batch']=='220203_NMC'].copy()
+dfplot = dfall.loc[dfall['Batch'].isin(['211202_NMC','220203_NMC'])].copy()
 
 fig, ax= plt.subplots(figsize=(13,6))
 
@@ -41,7 +44,16 @@ T = 278 #K
 F = 96485.3329 # C/mol
 b=2*R*T/(n*F) #V
 
+sig_l = 9.169e-3 # S/cm
+i0 = 7.2e-4 # A/cm2
+S = 9.3e3 # cm2/cm3
 
+rho_l = 1/sig_l #Ohm cma
+
+#L0 = np.sqrt(b/(2*i0*S*rho_l))*1e4 #um
+
+Jd = 0.01
+L0 = 57
 
 xmin = 1e-1
 xmax = 2.1e1
@@ -78,9 +90,9 @@ def colfun(wt):
 def markerfun(wt, ttss):
     
     
-    dftemp = dfplot.loc[dfplot['Wet_Thickness(um)']==wt, ('Thickness(um)', 'SampleID')].drop_duplicates()
+    dftemp = dfplot.loc[dfplot['Wet_Thickness(um)']==wt, ('Thickness(um)', 'Sample')].drop_duplicates()
     
-    ss_arr = np.array(list(map(int, dftemp.loc[:,'SampleID'].tolist())))
+    ss_arr = np.array(list(map(int, dftemp.loc[:,'Sample'].tolist())))
     tt_arr = np.array(dftemp.loc[:,'Thickness(um)'].tolist())
     
     ttss_arr = tt_arr + ss_arr*1e-2
@@ -93,14 +105,13 @@ def markerfun(wt, ttss):
     
     return mark
 
-Jd = np.exp(-1)
-L0 = 93
+
 
 ttss=np.array([])
 wtt=np.array([])
 ccc = np.array([])
 ttt = np.array([])
-for name, group in dfplot.groupby(by = ['SampleID']):
+for name, group in dfplot.groupby(by = ['Batch', 'Sample']):
     cc = group['Avg_C-rate(1/h)'].to_numpy(dtype=float)
     cce = group['Std_C-rate(1/h)'].to_numpy(dtype=float)
     nn = group['Avg_Overpotential(V)'].to_numpy(dtype=float)
@@ -121,7 +132,7 @@ for name, group in dfplot.groupby(by = ['SampleID']):
     tt = group['Thickness(um)'].unique()[0]
     wt = group['Wet_Thickness(um)'].unique()[0]
     
-    ttss = np.append(ttss, tt+int(name)*1e-2)
+    ttss = np.append(ttss, tt+int(name[1])*1e-2)
     wtt = np.append(wtt, wt)
     ttt = np.append(ttt,tt)
     
@@ -133,36 +144,40 @@ for name, group in dfplot.groupby(by = ['SampleID']):
     ax.plot(Cc, tt, marker=markerfun(wt,ttss[-1]), markerfacecolor=colfun(wt), markersize=15, alpha=0.5, color = 'k', zorder =100)
     ax.hlines(tt,0.1,Cc,color = colfun(wt), linestyle = '--', zorder = 0)    
     
-    ax.errorbar(cc, Ldiff, yerr=lde, marker=markerfun(wt,ttss[-1]),linestyle='-', color=colfun(wt), capsize=5, label=tt)
+    ax.plot(cc, Ldiff, marker=markerfun(wt,ttss[-1]),linestyle='-', color=colfun(wt), label=tt)
 
 
 
 
-df = dfCrit.loc[dfCrit['Batch']=='211202_NMC', :].copy()
 
+#df = dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].copy()
 
-Cc = df.loc[:, 'C-rate(rnd)']
-
-
-#index2 = (Cc > 0.1) & (Cc < 4.8) 
-index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
-
-xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
-yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
+for name, group in dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].groupby(by = ['Batch']):
     
-lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
-hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
-ee = np.vstack([lo,hi])
+    df = group
 
-ax.errorbar(xx, yy, yerr = ee, 
-                marker = 'o', 
-                linestyle = '-', 
-                color = '#e36414', 
-                capsize = 3, 
-                label = 'Critical Thickness', 
-                markersize=8, 
-                linewidth = 3, 
-                zorder = 110)
+    Cc = df.loc[:, 'C-rate(prog)']
+
+
+    #index2 = (Cc > 0.1) & (Cc < 4.8) 
+    index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
+
+    xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
+    yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
+        
+    lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
+    hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
+    ee = np.vstack([lo,hi])
+
+    ax.errorbar(xx, yy, yerr = ee, 
+                    marker = 'o', 
+                    linestyle = '-', 
+                    color = '#e36414', 
+                    capsize = 3, 
+                    label = name, 
+                    markersize=8, 
+                    linewidth = 3, 
+                    zorder = 110)
 
 
 Leg_kwargs = {'loc': 'upper right', 'bbox_to_anchor' : (1.01, 1.05)}
@@ -220,8 +235,8 @@ thresh = 0.05#np.exp(-1)
 
 fig, ax= plt.subplots(figsize=(13,6))
 
-for name, group in dfall[dfall['Batch']=='211202_NMC'].groupby(by = ['SampleID']):
-    cc = group['Cycle_ID'].to_numpy()
+for name, group in dfall[dfall['Batch']=='211202_NMC'].groupby(by = ['Sample']):
+    cc = group['Cycle'].to_numpy()
     nn = group['Overpotential(V)'].to_numpy()
     zcrt = np.array([])
     for nni in nn:
@@ -236,7 +251,7 @@ for name, group in dfall[dfall['Batch']=='211202_NMC'].groupby(by = ['SampleID']
     
     #group.plot(x='Cycle_ID', y='Overpotential(V)', marker='.', linestyle='-', ax=ax, label=name)
 
-ax.set_xlabel('Cycle_ID')
+ax.set_xlabel('Cycle')
 ax.set_ylabel('Critical Thickness, x/L')
 handles, labels = ax.get_legend_handles_labels()
 
@@ -251,3 +266,24 @@ plt.plot(zz,fun(zz))
 
 
 # %%
+
+
+
+dfplot = dfall.loc[dfall['Batch']=='M. Singh (2016), NMC'].copy()
+
+fig, ax= plt.subplots(figsize=(10,6))
+
+
+for name, group in dfplot.groupby(by = ['Cycle']):
+    label = group['C-rate(1/h)'].unique()[0]
+    group.plot(x='Thickness(um)',y='Capacity(mAh/cm2)', marker = 'o', label = label, ax = ax)
+
+
+ax.set_ylabel('Capacity(mAh/cm2)')
+ax.set_xlabel('Thickness(um)')
+
+
+
+
+#%%
+

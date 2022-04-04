@@ -22,38 +22,37 @@ SampleList = {
 #Batch = '220203_NMC'
 #Sample = '18'
 
-Batch = '211202_NMC'
-Sample = '19'
+Batch = '220203_NMC'
+Sample = '03'
 
-df = Cycler.get_overpotential(Batch, Sample, Plot=1)
+SampleList = {
+                        #'220203_NMC': ['10', '11', '15', '16', '24', '25'],
+                        #'220203_NMC': ['03', '04', '05', '06', '09', '17', '18', '21', '22', '23'],
+                        '220203_NMC': ['03', '06', '18', '21', '22', '23'],
+                        '211202_NMC': ['02', '03', '05', '06', '07', '08', '09', '12', '13', '15', '16', '17', '18', '19']
+                    }
 
-#%%
+#collecting batch cycle data 
+dfall = Cycler.get_BatchCycles(SampleList)
 
-SampleList = {'220203_NMC': ['03', '04', '06', '18', '21', '22', '23']}
+#adding HZheng and DYW Yu
+dfnew = Cycler.init_OtherData()
 
-dfOP = Cycler.OPSampleList(SampleList)
+dfall = pd.concat([dfall, dfnew], ignore_index = True)
 
-#%%
+#here im calculating the peak potentials and overpotentials for each cycle
+#it throws a bunch of warnings. thats no problem.
+OPall = Cycler.OPSampleList(SampleList)
 
-fig , ax = plt.subplots(figsize=(10,6))
-
-for name , group in dfOP.groupby(by='Sample'):
-    group.plot(x='Cycle', y='Overpotential(V)', ax=ax, marker = 'o', label = name)
-
-#%%
-
-d = {'col1' : [1,1,1,1,2,2,2,2,3,3,3,3], 'col2': [4,4,4,5,5,5,6,6,6,7,7,7]}
-dft = pd.DataFrame(data=d)
-
-groups = dft.groupby(by='col1')
-
-
+#merging the overpotential data with dfall
+dfall = pd.merge(OPall, dfall, on=['Cycle', 'Sample', 'Batch'], how='outer')
 
 
-# %%
-with open('Data/Supplemental/Cycler_Prog.json') as file:
-        CyclerProg=json.load(file)
-        
+#here i'm groupding the c-rates within each Batch.
+dfall = dfall.groupby('Batch').apply(Cycler.CRate_groups)
+
+
+dfCapCrit = Cycler.get_CapCrit(dfall)
         
 # %%
 
