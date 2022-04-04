@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import simplejson as json
 
+#%%
+
 
 SampleList = {
                         #'220203_NMC': ['10', '11', '15', '16', '24', '25'],
@@ -15,6 +17,19 @@ SampleList = {
                         '220203_NMC': ['03', '06', '18', '21', '22', '23'],
                         '211202_NMC': ['02', '03', '05', '06', '07', '08', '09', '12', '13', '15', '16', '17', '18', '19']
                     }
+
+
+with open("dfall.json") as file:
+            dfall_dict=json.load(file)
+            dfall = pd.DataFrame.from_dict(dfall_dict)
+
+dfOPCrit = Cycler.get_OPCrit(dfall)
+        
+
+
+#%%
+
+dfall, dfCrit, dfOPCrit = main.dfall_dfCrit(read_json = False, write_json = True)
 
 #%%
 #3,4,6, 18
@@ -40,6 +55,7 @@ dfnew = Cycler.init_OtherData()
 
 dfall = pd.concat([dfall, dfnew], ignore_index = True)
 
+
 #here im calculating the peak potentials and overpotentials for each cycle
 #it throws a bunch of warnings. thats no problem.
 OPall = Cycler.OPSampleList(SampleList)
@@ -51,9 +67,16 @@ dfall = pd.merge(OPall, dfall, on=['Cycle', 'Sample', 'Batch'], how='outer')
 #here i'm groupding the c-rates within each Batch.
 dfall = dfall.groupby('Batch').apply(Cycler.CRate_groups)
 
+#%%
 
-dfCapCrit = Cycler.get_CapCrit(dfall)
-        
+#dfall.to_json("dfall.json")
+
+
+#%%
+
+#dfCapCrit = Cycler.get_CapCrit(dfall)
+
+
 # %%
 
 
