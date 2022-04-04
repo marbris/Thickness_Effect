@@ -39,10 +39,10 @@ dfall, dfCrit = main.dfall_dfCrit()
 
 #%% Critical Thickness vs Crate double column figure
 
-Cols = ['#e36414','#0db39e','#748cab','#8a5a44','#264653']
+Cols = ['#e36414','#0db39e','#748cab','#8a5a44','#264653','#e9c46a']
 #Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
-markers = ['o','s','d', 'v', '^']
-lines = ['-',':','--','-.', '']
+markers = ['o','s','d', 'v', '^', '>']
+lines = ['-',':','--','-.', '','-']
 def stylefun(G):
     return (Cols[G], markers[G], lines[G])
 
@@ -53,15 +53,15 @@ Rfun = lambda L, k: k/L**2
 
 xmin = 1e-1
 xmax = 2.1e1
-ymin = -30
-ymax = 210
+ymin = -10
+ymax = 300
 
 ax.set_ylim((ymin, ymax))
 ax.set_xlim((xmin, xmax))
 
 xx = np.logspace(np.log10(xmin),np.log10(xmax), 100)
 
-kkcms = np.array([2**i for i in range(-1,8,2)])*1e-8
+kkcms = np.array([2**i for i in range(-1,7,2)])*1e-8
 kkmuh = kkcms*3.6e11
 
 for i, k in enumerate(kkmuh):
@@ -98,10 +98,9 @@ for i, (name, group) in enumerate(dfCrit.groupby(by=['Batch'])):
     
     if name == '211202_NMC': 
         index = index & index2
-        label = 'Current Work, NMC'
-    else:
-        label = name
     
+    
+    label = name
     
     xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
     yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
@@ -129,10 +128,10 @@ ax.set_xscale('log')
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, 
           ncol = 2, 
-          framealpha = 0, 
+          framealpha = 0.7, 
           fontsize = 8,
-          bbox_to_anchor=(-0.01,-0.03), 
-          loc = 'lower left',
+          #bbox_to_anchor=(-0.01,-0.03), 
+          loc = 'upper right',
           columnspacing=0.5, 
           handletextpad = 0.3, 
           labelspacing = 0.3)

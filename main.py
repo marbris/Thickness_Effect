@@ -14,14 +14,14 @@ import simplejson as json
 def dfall_dfCrit(read_json = True, write_json = False):
 
     """
-    gets dfall and dfcrit. 
+    gets dfall and dfCapCrit. 
     
     if read_json=True (default), the dataframes are imported from file. Otherwise they're calculated from data.
     
     if write_json=True (default: false), the calculated dataframes are written to .json files. these are overritten. This also only happens if the dataframes are calculated, ie read_json=False.
 
     Returns:
-       dfall, dfCrit Pandas dataframes: 
+       dfall, dfCapCrit Pandas dataframes: 
     """
     
     if not read_json:
@@ -53,11 +53,11 @@ def dfall_dfCrit(read_json = True, write_json = False):
         dfall = dfall.groupby('Batch').apply(Cycler.CRate_groups)
         
         
-        dfCrit = Cycler.get_CritRL(dfall)
+        dfCapCrit = Cycler.get_CapCrit(dfall)
         
         if write_json:
             dfall.to_json("dfall.json")
-            dfCrit.to_json("dfCrit.json")
+            dfCapCrit.to_json("dfCapCrit.json")
         
     else:
         
@@ -66,13 +66,13 @@ def dfall_dfCrit(read_json = True, write_json = False):
             dfall_dict=json.load(file)
             dfall = pd.DataFrame.from_dict(dfall_dict)
         
-        with open("dfCrit.json") as file:
-            dfCrit_dict=json.load(file)
-            dfCrit = pd.DataFrame.from_dict(dfCrit_dict)
+        with open("dfCapCrit.json") as file:
+            dfCapCrit_dict=json.load(file)
+            dfCapCrit = pd.DataFrame.from_dict(dfCapCrit_dict)
         
 
     
-    return dfall, dfCrit
+    return dfall, dfCapCrit
 
 
 

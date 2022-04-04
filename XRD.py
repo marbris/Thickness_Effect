@@ -38,40 +38,62 @@ AR = 1/1.618
 #%%
 
 
-#datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks/NMC_3_GM_4tt35tt_05ts_6ks_bg_subtracted.xye'
-#datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_bg_subtracted.xye'
-
-datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_2/NMC_3_GM_4tt35tt_05ts_6ks_2_exported.xye'
-
-datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks/NMC_3_GM_4tt35tt_05ts_6ks_exported.xye'
+datafile = 'Data/XRD/NMC_3_GM/NMC_3_GM_4tt35tt_05ts_6ks_4_good/NMC_3_GM_4tt35tt_05ts_6ks_4_bg_subtracted.xye'
 df_NMC = pd.read_csv(datafile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
 
+patternfile = 'Data/XRD/COD9005350_NMC.csv'
+df_Pat = pd.read_csv(patternfile, sep = ',', header = 0, names = ['d(A)', '2Th_[Mo]', 'I', 'h', 'k', 'l', 'Comment'])
 
-Puckfile = 'Data/XRD/Puck/Puck_exported.xye'
-df_Puck = pd.read_csv(Puckfile, sep = ' ', skiprows = 1, header = None, names = ['2Th_[Mo]', 'Cnt', 'e'])
-
-
-
+#%%
 l_Cu = 1.54056 #Ang
 l_Mo = 0.70930 #Ang
 
 df_NMC.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_NMC['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
+df_Pat.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_Pat['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
 
-df_Puck.loc[:,'2Th_[Cu]'] = np.arcsin( l_Cu/l_Mo * np.sin( df_Puck['2Th_[Mo]']*(np.pi/180) / 2 ) ) * 2 * 180/np.pi
-
-#fig, ax= plt.subplots(figsize=(13,6))
 fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))
 
 df_NMC.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = None, linewidth = 0.5, label = "NMC-powder")
 
-df_Puck.plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='r', marker = None, linewidth = 0.5, label = "empty puck")
 
+Pat_2th = df_Pat['2Th_[Cu]'].to_numpy(dtype=float)
+Pat_I = df_Pat['I'].to_numpy(dtype=float)
+plt.vlines(Pat_2th, 0, Pat_I/max(Pat_I)*20, color = 'r', linewidth = 1, zorder=1e3, alpha = 0.7, label = 'pattern')
+
+
+ax.set_ylabel('Counts')
+ax.set_xlabel('2$\Theta$ [$^\circ$]')
+
+#ax.set_ylim((-0.5, 9))
+ax.set_xlim((10, 80))
+
+
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ['XRD pattern', 'NMC peaks'], 
+          loc = 'upper right',
+          framealpha = 0,
+          #fontsize = 8,
+          bbox_to_anchor=(1.03,1.03), 
+          handletextpad = 0.3, 
+          labelspacing = 0.3)
+
+
+fig.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+#%%
 xrdfile = 'Data/XRD/mp-25411_xrd_Cu.json'
 with open(xrdfile) as file:
     xrd = json.load(file)
     
 peaks_NMC = [878,2454,2571,2598,3121,3473,4300,4758,4793,5051]
-tth = df.loc[peaks_NMC,'2Th_[Cu]'].values
+tth = df_NMC.loc[peaks_NMC,'2Th_[Cu]'].values
 dd_NMC = l_Cu/(2*np.sin(tth/2*np.pi/180))
 
 ymin=0
@@ -101,7 +123,7 @@ kk = dd_NMC/dd_LCO[:10]
 pp2 = 2*np.arcsin(1/kk[1]*np.sin(pp/2*np.pi/180))*180/np.pi
 
 
-#plt.vlines(pp, 0, hh, color = 'r', linewidth = 1, zorder=1e3, alpha = 0.7)
+plt.vlines(pp, 0, hh/5, color = 'r', linewidth = 1, zorder=1e3, alpha = 0.7, label = 'pattern')
 #peaks, peakdict = find_peaks(df.loc[:,'Cnt'], prominence = (3, 1e5))
 
 #df.loc[peaks,:].plot(x='2Th_[Cu]', y='Cnt', ax=ax, color ='k', marker = 'o', linestyle='')
@@ -113,7 +135,14 @@ ax.set_xlabel('2$\Theta$ [$^\circ$]')
 ax.set_xlim((10, 80))
 
 
-ax.get_legend().remove()
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ['XRD pattern', 'NMC peaks'], 
+          loc = 'upper right',
+          framealpha = 0,
+          #fontsize = 8,
+          bbox_to_anchor=(1.03,1.03), 
+          handletextpad = 0.3, 
+          labelspacing = 0.3)
 
 
 fig.tight_layout()

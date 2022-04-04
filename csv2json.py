@@ -29,16 +29,17 @@ def list_files(dir):
 
 #datafolder = r'Data/Data_220203_NMC/Martin_0203_2_2022_03_04_172442'
 #datafolder = "Data/Data_220203_NMC/raw"
-datafolder = 'Data/Data_211202_NMC/CoinCell_RAW_211202_NMC'
+#datafolder = 'Data/Data_211202_NMC/CoinCell_RAW_211202_NMC'
+datafolder = 'Data/Data_220209_NMC/martin_0209_CycleStability_2022_03_29_171155'
 r = list_files(datafolder)
 
 
 
-regexp=".*\.CSV$"
+regexp=".*\.xlsx$"
 
 for file in r:
     if re.search(regexp, file):
-        MITS_2json(file, CSV=True)
+        MITS_2json(file, CSV=False)
         print("Finished: {}".format(file))
                 
 

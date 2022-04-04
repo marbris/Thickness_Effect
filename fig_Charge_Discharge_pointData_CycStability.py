@@ -40,17 +40,34 @@ AR = 1/1.618
 fig= plt.figure(figsize=(Col1,Col1*AR*1.2))
 ax= fig.add_axes([0.15,0.2,0.8,0.75])
 
-plt.ylim((2.2,4.45))
-plt.xlim((-0.01,8.5))
+#plt.ylim((2.2,4.45))
+#plt.xlim((-0.01,8.5))
 #plt.xlim((-5,250))
 
 ax.set_yticks([2.8, 3.6, 4.4])  
 
-DataDirectory = "Data/"
-BatchLabel = '211202_NMC'
-PlotList = ['02', '13', '19']
+Batch = '220209_NMC'
+Sample = '02'
 
-SL = Cycler.get_SampleList(DataDirectory)
+cycles = [1,2,5]
+
+df = Cycler.get_ChargeDischarge(Batch, Sample)
+
+index = df['Cycle'].isin(cycles)
+
+for name, group in df[index].groupby(by = 'Cycle'):
+    
+    index = group['Step'] == 3
+    group[index].plot(x='Charge_Capacity(mAh/cm2)', y='Voltage(V)', ax=ax)
+    
+    index = group['Step'] == 4
+    group[index].plot(x='Discharge_Capacity(mAh/cm2)', y='Voltage(V)', ax=ax)
+    
+
+
+#%%
+
+SL = Cycler.get_SampleList()
 BI = Cycler.get_BatchInfo(BatchLabel)
 
 tt=np.array([])

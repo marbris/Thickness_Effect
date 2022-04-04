@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 #%%
 
 Batch = '220203_NMC'
-Sample = '03'
+Sample = '04'
 
 df_Cyc = Cycler.get_CycleData(Batch, Sample)
 df_Stp = Cycler.get_StepData(Batch, Sample)
@@ -32,7 +32,7 @@ def colfun(i):
 
 for i, ((Cyc, Stp), group) in enumerate(df_Pnt.groupby(['Cycle', 'Step'])):
     
-    group.plot(x='Test_Time(s)', y='Current(mA)', 
+    group.plot(x='Date_Time', y='Current(mA)', 
                color = colfun(int(Cyc)), 
                linestyle = '-', 
                marker = '.',

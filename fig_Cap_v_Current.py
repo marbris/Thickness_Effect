@@ -35,13 +35,18 @@ dfall, dfCrit = main.dfall_dfCrit()
 
 
 
-dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
+#dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
+
+Samples = ['06', '08', '12', '16', '18']
+
+index = (dfall['Batch']=='211202_NMC') & dfall['Sample'].isin(Samples)
+dfplot = dfall.loc[index].copy()
 
 #I'm dropping the final few cycles, since those repeat the low-C cycles.
-dfplot.drop(dfplot.loc[(dfall['C-rate(1/h)']<0.3) & (dfplot['Cycle_ID']>2)].index, inplace=True)
+dfplot.drop(dfplot.loc[(dfall['C-rate(1/h)']<0.3) & (dfplot['Cycle']>2)].index, inplace=True)
 
 Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
-markers = ['o', 'v', 's', '^']
+markers = ['o', 'v', 's', '^', 'd']
 
 def colfun(wt):
     if wt==600:
@@ -59,23 +64,26 @@ def colfun(wt):
     
     return col
 
-def markerfun(wt, ttss):
+#def markerfun(wt, ttss):
     
     
-    dftemp = dfplot.loc[dfplot['Wet_Thickness(um)']==wt, ('Thickness(um)', 'SampleID')].drop_duplicates()
+#    dftemp = dfplot.loc[dfplot['Wet_Thickness(um)']==wt, ('Thickness(um)', 'Sample')].drop_duplicates()
     
-    ss_arr = np.array(list(map(int, dftemp.loc[:,'SampleID'].tolist())))
-    tt_arr = np.array(dftemp.loc[:,'Thickness(um)'].tolist())
+#    ss_arr = np.array(list(map(int, dftemp.loc[:,'Sample'].tolist())))
+#    tt_arr = np.array(dftemp.loc[:,'Thickness(um)'].tolist())
     
-    ttss_arr = tt_arr + ss_arr*1e-2
+#    ttss_arr = tt_arr + ss_arr*1e-2
     #the number of thicker samples within this wet thickness
-    N_Thicker = sum(ttss_arr>ttss)
+#    N_Thicker = sum(ttss_arr>ttss)
     #print((ttss_arr, ttss, N_Thicker))
 
     #the marker is determined by how many thicker samples there are
-    mark = markers[N_Thicker]
+#    mark = markers[N_Thicker]
     
-    return mark
+#    return mark
+
+def markerfun(i):
+    return markers[np.mod(i,len(markers))]
 
 def sizefun(t):
     #k=0.06
@@ -84,7 +92,7 @@ def sizefun(t):
     return 4
 
 
-Settings = 1
+Settings = 0
 
 
 
@@ -172,15 +180,15 @@ fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))
 ax.set_ylim((ymin, ymax))
 ax.set_xlim((xmin, xmax))
 
-SampleList = dfplot.loc[:,'SampleID'].dropna().unique().tolist()
+SampleList = dfplot.loc[:,'Sample'].dropna().unique().tolist()
 #plotting the samples in reverse so that thickest are at the bottom
 PlotList = [SampleList[-i] for i in range(len(SampleList))]
 
 ttss=np.array([])
 wtt=np.array([])
-for SampleID in PlotList:
+for i, SampleID in enumerate(PlotList):
     
-    df = dfplot.loc[dfplot['SampleID']==SampleID, :]
+    df = dfplot.loc[dfplot['Sample']==SampleID, :]
     Thickness = df.loc[:,'Thickness(um)'].unique()[0]
     WT = df.loc[:,'Wet_Thickness(um)'].unique()[0]
     
@@ -191,13 +199,13 @@ for SampleID in PlotList:
             y = yCol, 
             ax=ax, 
             color = colfun(WT), 
-            marker = markerfun(WT,ttss[-1]), 
+            marker = markerfun(i),#markerfun(WT,ttss[-1]), 
             logx=True, 
             markersize = sizefun(Thickness), 
-            label = '{:.0f}'.format(Thickness),
+            label = '{:.0f} $\mu$m'.format(Thickness),
             zorder = 200-Thickness)
 
-
+"""
 NCol = len(np.unique(wtt))
 maxrows = 4
 for wti in np.unique(wtt):
@@ -206,12 +214,12 @@ for wti in np.unique(wtt):
             ax.plot(np.zeros(1), np.zeros([1,2]), color='w', alpha=0, label=' ')
             wtt = np.append(wtt, wti)
             ttss = np.append(ttss, Leg_Dummy_tt)
-
+"""
 
 handles, labels = ax.get_legend_handles_labels()
 labels, handles, ttss2, wtt2 = zip(*sorted(zip(labels, handles, ttss, wtt), key=lambda k: (Leg_Col_Order*k[3], Leg_Row_Order*k[2]), reverse=False))
 ax.legend(handles, labels, 
-          ncol = NCol, 
+          ncol = 1,#NCol, 
           framealpha = 0, 
           columnspacing=0.7, 
           handletextpad = 0.3, 
