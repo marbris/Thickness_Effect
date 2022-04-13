@@ -183,10 +183,123 @@ ax.legend(handles, labels,
 
 fig.tight_layout()
 
+#%%
+
+
+fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))   
+
+BatchList = ['211202_NMC']
+#Samplelist = ['05','08','12','15', '18']
+Samplelist = ['02', '03', '05', '06', '07', '08', '09', '12', '13', '15', '16', '17', '18', '19']
+
+
+index1 = (dfall['Batch'].isin(BatchList)) & (dfall['Sample'].isin(Samplelist)) & (dfall['Cycle']<30)
+
+tt = dfall.loc[index1, 'Thickness(um)'].unique()
+plt.hlines(tt,9e-2,3e-1,linestyle = ':', color='black')
+
+
+Cols2 = ['k', 'r', 'b', '#2a9d8f', '#264653']
+markers = ['o', 'v', 's', '^']
+
+def colfun(i):
+    return Cols2[np.mod(i,len(Cols2))]
+
+
+
+Jdlist=[0.01, 0.1, np.exp(-1)]
+for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
+
+    for i, Jdi in enumerate(Jdlist):
+
+        eta_d = lambda eta0: b*np.arcsinh(Jdi*np.sinh(eta0/b)) 
+        Ld = lambda eta0: np.log( np.tanh( eta0/(4*b) )/np.tanh( eta_d(eta0)/(4*b) ))
+        #
+        
+        cycind = group['Cycle']==2
+        Qa = group.loc[cycind,'Avg_DCapacity(mAh/cm2)'].to_numpy(dtype = float)
+
+        
+        cc = group['Avg_C-rate(1/h)'].to_numpy(dtype = float)
+        eta0 = b * np.arcsinh(cc*Qa/(2*i0*S))
+        Ldiff = Ld(eta0)*L0
+        
+        if name == Samplelist[0]:
+            if i == 0:
+                label = 'Penetration Depth, J$_d$ = {:.2}'.format(Jdi)
+            else:
+                label = 'J$_d$ = {:.2}'.format(Jdi)
+        else:
+            label = '_No_Label_'
+
+        ax.plot(cc,Ldiff,marker = 'o',color = colfun(i),markersize = 2, label=label)
+        
+        thickness = group['Thickness(um)'].unique()[0]
+        
+        nani = np.argmax(np.isnan(Ldiff))-1
+        cc = cc[:nani]
+        Ldiff = Ldiff[:nani]
+        
+        if ~np.all(np.diff(Ldiff) > 0):
+            isort = np.argsort(Ldiff)
+            Ldiff = Ldiff[isort]
+            cc = cc[isort]
+    
+        if (thickness <= max(Ldiff)) & (thickness >= min(Ldiff)):
+            C_crit = np.interp(thickness,Ldiff,cc)
+        else:
+            C_crit = np.nan
+            C_crit_hi = np.nan
+            
+        ax.plot(C_crit,thickness, marker = 'o', color = colfun(i), markerfacecolor = 'w', markersize = 8, zorder = 100)
+        
+        
+
+#index2 = (dfCapCrit['Batch'].isin([BatchList]))
+df = dfCapCrit.loc[dfCapCrit['Batch']=='211202_NMC',:].copy()
+
+Cc = df.loc[:, 'C-rate(prog)']
+#index2 = (Cc > 0.1) & (Cc < 4.8) 
+index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
+
+xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
+yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
+    
+lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
+hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
+ee = np.vstack([lo,hi])
+
+ax.errorbar(xx, yy, yerr = ee, 
+                marker = 'o', 
+                linestyle = '-', 
+                color = '#e36414', 
+                capsize = 3, 
+                label = 'Optimum Thickness', 
+                markersize=4, 
+                linewidth = 2, 
+                zorder = 110)
+
+
+
+ax.set_xlabel('C-rate(1/h)', fontsize=15)
+ax.set_ylabel('penetration depth, \nL$_d$ [$\mu$m]', fontsize = 15)
+handles, labels = ax.get_legend_handles_labels()
+
+ax.set_xscale('log')
+ax.set_xlim((9e-2, 14))
+ax.set_ylim((0, 330))
+
+
+ax.legend(handles, labels, 
+          loc = 'upper right', 
+          ncol = 4)
+
+fig.tight_layout()
+plt.show()
 
 #%%
 
-batch = '220203_NMC'
+batch = '211202_NMC'
 cycind = (dfall['Cycle']==2) & (dfall['Batch'] == batch)
 Qa = dfall.loc[cycind,'Avg_DCapacity(mAh/cm2)'].to_numpy(dtype = float) #mAh/cm2
 Th = dfall.loc[cycind,'Thickness(um)'].to_numpy(dtype = float)*1e-4 #cm
@@ -195,7 +308,7 @@ Qv = Qa/Th
 
 n = 1 # 1
 R = 8.314 # J/molK
-T = 278 #K
+T = 298 #K
 F = 96485.3329 # C/mol
 b=2*R*T/(n*F) #V
 
@@ -371,4 +484,155 @@ ax.set_xlabel('Thickness(um)')
 
 
 #%%
+
+
+fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))  
+
+ax.set_xscale('log')
+
+
+
+Cols = ['#e36414','#0db39e','#748cab','#8a5a44','#264653','#e9c46a']
+
+index2 = (dfCapCrit['Batch'].isin([batch]))
+
+
+df = dfCapCrit.loc[index2,:].copy()
+
+Cc = df.loc[:, 'C-rate(prog)']
+#index2 = (Cc > 0.1) & (Cc < 4.8) 
+index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
+
+xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
+yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
+    
+lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
+hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
+ee = np.vstack([lo,hi])
+
+ax.errorbar(xx, yy, yerr = ee, 
+                marker = 'o', 
+                linestyle = '-', 
+                color = '#e36414', 
+                capsize = 3, 
+                label = 'Optimum Thickness', 
+                markersize=4, 
+                linewidth = 2, 
+                zorder = 110)
+
+
+n = 1 # 1
+R = 8.314 # J/molK
+T = 298 #K
+F = 96485.3329 # C/mol
+b=2*R*T/(n*F) #V
+
+sig_l = 9.169e-3 # S/cm
+i0 = 7.2e-4 # A/cm2
+S = 9.3e3 # cm2/cm3
+rho_l = 1/sig_l #Ohm cm
+
+ll = (R*T/(n*F*i0*S*rho_l))**(1/2)*1e4
+
+Cols2 = ['k', 'r', 'b']
+
+def colfun(i):
+    return Cols2[np.mod(i,len(Cols2))]
+
+
+Jdlist=[0.01, 0.1, np.exp(-1)]
+for i, Jdi in enumerate(Jdlist):
+    label = 'Penetration Depth, J$_d$ = {:.2}'.format(Jdi)
+    plt.hlines(ll*np.arctanh(1-Jdi), 9e-2, 14, linestyle = ':', color = colfun(i), label = label)
+
+
+ax.set_xlabel('C-rate(1/h)', fontsize=15)
+ax.set_ylabel('penetration depth \nL$_d$ [$\mu$m]', fontsize = 15)
+handles, labels = ax.get_legend_handles_labels()
+
+ax.set_xscale('log')
+ax.set_xlim((9e-2, 14))
+ax.set_ylim((0, 200))
+
+
+ax.legend(handles, labels, 
+          loc = 'lower left', 
+          ncol = 1, 
+          framealpha = 0.9, 
+          columnspacing=1, 
+          handletextpad = 0.3, 
+          labelspacing = 0.3)
+
+fig.tight_layout()
+plt.show()
+
+
+
+#%%
+
+
+fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))  
+
+
+n = 1 # 1
+R = 8.314 # J/molK
+T = 298 #K
+F = 96485.3329 # C/mol
+b=2*R*T/(n*F) #V
+
+sig_l = 9.169e-3 # S/cm
+i0 = 7.2e-4 # A/cm2
+S = 9.3e3 # cm2/cm3
+rho_l = 1/sig_l #Ohm cm
+
+ll = (R*T/(n*F*i0*S*rho_l))**(1/2)*1e4
+
+index2 = (dfCapCrit['Batch'].isin([batch]))
+df = dfCapCrit.loc[index2,:].copy()
+
+Cc = df.loc[:, 'C-rate(prog)']
+#index2 = (Cc > 0.1) & (Cc < 4.8) 
+index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
+
+xx = df.loc[index,'C-rate_mean(1/h)'].to_numpy(dtype=float)
+yy = df.loc[index,'Thickness_max(um)'].to_numpy(dtype=float)
+    
+lo = df.loc[index,'Thickness_lo(um)'].to_numpy(dtype=float)
+hi = df.loc[index,'Thickness_hi(um)'].to_numpy(dtype=float)
+
+jj = 1-np.tanh(yy/ll)
+#since a larger thickness corresponds to a lower Jd, the error bars are flipped
+jj_hi = abs(jj - (1-np.tanh((yy-lo)/ll)))
+jj_lo = abs(jj - (1-np.tanh((yy+hi)/ll)))
+
+
+ee = np.vstack([jj_lo,jj_hi])
+
+ax.errorbar(xx, jj, yerr = ee, 
+                marker = 'o', 
+                linestyle = '-', 
+                color = '#e36414', 
+                capsize = 3, 
+                label = 'Fractional current at Optimum Thickness', 
+                markersize=4, 
+                linewidth = 2, 
+                zorder = 110)
+
+
+
+ax.set_xlabel('C-rate(1/h)', fontsize=15)
+ax.set_ylabel('Fractional current \nJ$_d$', fontsize = 15)
+handles, labels = ax.get_legend_handles_labels()
+
+ax.set_xscale('log')
+ax.set_xlim((9e-2, 14))
+#ax.set_ylim((0, 330))
+
+
+ax.legend(handles, labels, 
+          loc = 'upper left', 
+          ncol = 1)
+
+fig.tight_layout()
+plt.show()
 
