@@ -9,6 +9,7 @@ Created on Tue Mar 15 16:01:11 2022
 
 import main
 import matplotlib.pyplot as plt
+
 import matplotlib
 import numpy as np
 from scipy.optimize import fmin
@@ -47,47 +48,15 @@ fig, ax= plt.subplots(figsize=(13,6))
 Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
 markers = ['o', 'v', 's', '^']
 
-def colfun(wt):
-    if wt==600:
-        col = Cols2[0]
-    elif wt==500:
-        col = Cols2[1]
-    elif wt==400:
-        col = Cols2[2]
-    elif wt==300:
-        col = Cols2[3]
-    elif wt==200:
-        col = Cols2[4]
-    else:
-        col ='k'
-    
-    return col
-
-def markerfun(wt, ttss):
-    
-    
-    dftemp = dfplot.loc[dfplot['Wet_Thickness(um)']==wt, ('Thickness(um)', 'Sample')].drop_duplicates()
-    
-    ss_arr = np.array(list(map(int, dftemp.loc[:,'Sample'].tolist())))
-    tt_arr = np.array(dftemp.loc[:,'Thickness(um)'].tolist())
-    
-    ttss_arr = tt_arr + ss_arr*1e-2
-    #the number of thicker samples within this wet thickness
-    N_Thicker = sum(ttss_arr>ttss)
-    #print((ttss_arr, ttss, N_Thicker))
-
-    #the marker is determined by how many thicker samples there are
-    mark = markers[N_Thicker]
-    
-    return mark
+def colfun(i):
+    return Cols2[np.mod(i,len(Cols2))]
 
 
-"""
 L0 = 57
 ttss = np.array([])
 wtt = np.array([])
 ttt = np.array([])
-for name, group in dfall.loc[dfall['Batch'].isin(BatchList), :].groupby(by = ['Batch']):
+for i, (name, group) in enumerate(dfall.loc[dfall['Batch'].isin(BatchList), :].groupby(by = ['Batch'])):
 
     tt = group['Thickness(um)'].unique()[0]
     wt = group['Wet_Thickness(um)'].unique()[0]
@@ -101,11 +70,11 @@ for name, group in dfall.loc[dfall['Batch'].isin(BatchList), :].groupby(by = ['B
     Ldiff = ld*L0
     cc = group.loc[index,'Avg_C-rate(1/h)'].to_numpy(dtype=float)
     
-    #ax.plot(cc, Ldiff, marker=markerfun(wt,ttss[-1]),linestyle='-', color=colfun(wt), label=tt)
-    ax.plot(cc, Ldiff, marker='o',linestyle='-', color='g', label=tt)
+    ax.plot(cc, Ldiff, marker='.',linestyle='-', color=colfun(i), label=tt)
+    #ax.plot(cc, Ldiff, marker='o',linestyle='-', color='g', label=tt)
 
 
-"""
+
 
 
 #df = dfCapCrit.loc[dfCapCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].copy()

@@ -505,7 +505,7 @@ def get_SampleData(Batch, Sample, DataDirectory = 'Data/', filepath = ""):
     """
     SampleData = get_SampleData(Batch, Sample, DataDirectory):
     
-    This script imports the data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json as a python dict
+    This script imports the data from [DataDirectory]/Data_[Batch]/CoinCell_[Sample]_[Batch].json as a python dict  
     
     """
     if filepath:

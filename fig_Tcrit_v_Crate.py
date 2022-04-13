@@ -32,7 +32,7 @@ AR = 1/1.618
 
 
 
-dfall, dfCrit = main.dfall_dfCrit()
+dfall, dfCrit, dfOPCrit = main.dfall_dfCrit()
 
 
                     

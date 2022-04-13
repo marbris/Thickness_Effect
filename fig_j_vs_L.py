@@ -36,7 +36,7 @@ AR = 1/1.618
 
 
 #dfall, dfCrit = main.dfall_dfCrit(read_json = False, write_json = True)
-dfall, dfCrit = main.dfall_dfCrit()
+dfall, dfCrit, dfOPCrit = main.dfall_dfCrit()
 
 
 Batch = '211202_NMC'
@@ -63,8 +63,8 @@ b=2*R*T/(n*F) #V
 
 
 
-Jd = 0.05
-L0 = 93
+Jd = 0.01
+L0 = 57
 
 
 
@@ -87,13 +87,13 @@ X = np.linspace(0,2*L0,1000)
 
 for Cyc in cycles:
     
-    eta0 = dfplot.loc[dfplot['Cycle_ID']==Cyc, 'Overpotential(V)'].values[0]
+    eta0 = dfplot.loc[dfplot['Cycle']==Cyc, 'Overpotential(V)'].values[0]
     Y = Ifrac(X,eta0)
     ax.plot(X,Y,color=colfun(Cyc),linestyle='-')
     
     Ld = min(Y-Jd)
     
-    plt.hlines(Jd,0,)
+    #plt.hlines(Jd,0,)
     
 
 
@@ -104,3 +104,72 @@ ax.set_xlim((0, max(X)))
 ax.set_xlabel('Distance from Separator, [$\mu$m]')
 ax.set_ylabel('Fractional \nreaction rate current')
 
+#%%%%
+
+
+
+fig= plt.figure(figsize=(Col2,Col1*AR*1.2))
+ax= fig.add_axes([0.15,0.2,0.8,0.75])
+
+
+n = 1 # 1
+R = 8.314 # J/molK
+T = 278 #K
+F = 96485.3329 # C/mol
+b=2*R*T/(n*F) #V
+
+
+
+
+Jd = 0.01
+L0 = 57
+
+
+
+
+etafun = lambda x, eta0: 4*b*np.arctanh( np.exp(-x/L0) * np.tanh(eta0/(4*b)) )
+Ifrac = lambda x, eta0: np.sinh(etafun(x,eta0)/b)/np.sinh(eta0/b)
+
+
+
+markers = ['o', 'v', 's', '^']
+
+Cols = ['#001219', '#005f73', '#0a9396', '#94d2bd', '#e9d8a6', '#ee9b00', '#ca6702', '#bb3e03', '#ae2012', '#9b2226']
+
+def colfun(i):
+    return Cols[np.mod(i-1,len(Cols))]
+
+
+
+X = np.linspace(0,2.5*L0,1000)
+eta0 = 0.2
+Y = Ifrac(X,eta0)
+ax.plot(X,Y,color='orange',linestyle='-')
+
+plt.text(30, 0.5, '$\eta_0 = {}$ V'.format(eta0))
+
+Cols = ['k','r','b']
+
+Jdlist = [0.01, 0.1, np.exp(-1)]
+
+LdList = []
+for i, Jd in enumerate(Jdlist):
+    Ldval = X[abs(Y-Jd) == min(abs(Y-Jd))]
+    plt.hlines(Jd,0,Ldval,color = Cols[i])
+    plt.vlines(Ldval,-0.1,Jd,color = Cols[i])
+    LdList.append(Ldval)
+    
+
+ax.set_yticks([0.01,0.1,np.exp(-1),1])
+ax.set_yticklabels(['0.01','0.1','e$^{-1}$','1.0'])
+
+ax.set_xticks(LdList)
+#ax.set_xticklabels(['9.4','32.4','130'])
+
+ax.set_ylim((-0.1, 1.1))
+ax.set_xlim((0, max(X)))
+
+ax.set_xlabel('Penetration Depth, [$\mu$m]')
+ax.set_ylabel('Fractional \nreaction rate current')
+
+# %%

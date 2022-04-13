@@ -43,31 +43,38 @@ fig, ax = plt.subplots(figsize=(Col2,Col1*AR))
 
 ax2 = ax.twinx()
 
-ax.set_xlim((-0.5, 50.5))
+xmin = -0.5
+xmax = 50.5
+ax.set_xlim((xmin, xmax))
 
 ax.set_ylabel('Areal Capacity \n[mAh/cm$^2$]')
 ax2.set_ylabel('Coulombic \nEfficicency [%]')
 ax.set_xlabel('Cycle')
 
-index = (df['Cycle'] < df['Cycle'].max()) & (df['Sample']=='02')
+index = (df['Cycle'] < df['Cycle'].max()-1) & (df['Sample']=='37')
 
 df.loc[index,:].plot(x='Cycle', y = 'Coulombic_Efficiency(%)', 
                      ax=ax2, 
                      marker = 'o', 
                      label = 'Coulombic Efficiency',
-                     color = 'k')
+                     color = 'k',
+                     zorder = 1)
+plt.hlines(100,xmin,xmax,color = 'k',linestyle=':',linewidth=1,zorder=0)
+
 df.loc[index,:].plot(x='Cycle', y = 'Discharge_Capacity(mAh/cm2)', 
                      ax=ax, 
                      marker = 'v', 
                      label = 'Discharge Capacity',
                      color = 'r', 
-                     alpha = 0.6)
+                     alpha = 0.6,
+                     zorder = 3)
 df.loc[index,:].plot(x='Cycle', y = 'Charge_Capacity(mAh/cm2)', 
                      ax=ax, 
                      marker = '^', 
                      label = 'Charge Capacity',
                      color = 'b', 
-                     alpha = 0.6)
+                     alpha = 0.6, 
+                     zorder = 2)
 
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles, labels, 

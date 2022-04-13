@@ -33,7 +33,6 @@ Col2= 18.3/2.54 # 18.3cm double column figure width in Nature
 
 AR = 1/1.618
 
-#%%
 
 #dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit(read_json = False, write_json = True)
 dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit()
@@ -41,9 +40,6 @@ dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit()
     
 
 #%% Calculating diffusion depth
-
-#dfplot = dfall.loc[dfall['Batch']=='211202_NMC'].copy()
-#dfplot = dfall.loc[dfall['Batch']=='220203_NMC'].copy()
 
 
 
@@ -63,66 +59,89 @@ rho_l = 1/sig_l #Ohm cm
 #L0 = np.sqrt(b/(2*i0*S*rho_l))*1e4 #um
 L0 = 57
 
-xmin = 1e-1
-xmax = 3e1
+xmin = -200
+xmax = 250
 
 ymin = 0
-ymax = 350
+ymax = 8
 
 ax.set_ylim((ymin, ymax))
 ax.set_xlim((xmin, xmax))
 
+
+Jd=0.01
+n = 1 # 1
+R = 8.314 # J/molK
+T = 298 #K
+F = 96485.3329 # C/mol
+b=2*R*T/(n*F) #V
+
+eta_d = lambda eta0: b*np.arcsinh(Jd*np.sinh(eta0/b)) 
+Ld = lambda eta0: np.log( np.tanh( eta0/(4*b) )/np.tanh( eta_d(eta0)/(4*b) ))
+
+
+
+#OPdf.loc[:,'Penetration_Depth(x/L0)'] 
+
 Cols = ['#e36414','#0db39e','#748cab','#8a5a44','#264653','#e9c46a']
 #Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
 markers = ['o','s','d', 'v', '^', '>']
-lines = ['-',':','--','-.', '','-']
+lines = ['-',':','--','-.']
 def stylefun(G):
-    return (Cols[G], markers[G], lines[G])
+    return (Cols[np.mod(G,len(Cols))], markers[np.mod(G,len(markers))], lines[np.mod(G,len(lines))])
 
 
-#df = dfCrit.loc[dfCrit['Batch'].isin(['211202_NMC', '220203_NMC']), :].copy()
 
-Cc = dfCapCrit.loc[dfCapCrit['Batch']=='211202_NMC', 'C-rate(prog)']
-index2 = (Cc > 0.1) & (Cc < 4.8) 
+BatchList = ['211202_NMC']
+dfplot = dfall.loc[dfall['Batch'].isin(BatchList),:]
 
-#legsort = []
-#LegOrd = 100
+for i, (sample, df) in enumerate(dfplot.groupby(by=['Sample'])):
+    
+    
+    
+    PenDepth = df.loc[:,'Avg_Penetration_Depth(x/L0)'].to_numpy(dtype=float)*L0
+    
+    #PenDepth = df.loc[:,'Avg_Overpotential(V)'].apply(Ld).to_numpy(dtype=float)*L0
+    
+    Thickness = df.loc[:,'Thickness(um)'].to_numpy(dtype=float)
+    
+    xx = (PenDepth-Thickness)
+    
+    yy = df.loc[:,'Avg_DCapacity(mAh/cm2)'].to_numpy(dtype=float)
 
-for i, (batch, df) in enumerate(dfCapCrit.groupby(by=['Batch'])):
 
     
-    #legsort.append(i+LegOrd)
-
-    Cc = df.loc[:, 'C-rate(prog)']
-
-
-    #index2 = (Cc > 0.1) & (Cc < 4.8) 
-    index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
+    ax.plot(xx,yy, 
+            marker = stylefun(i)[1], 
+            linestyle = stylefun(i)[2], 
+            color = stylefun(i)[0])
     
-    index = ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
     
-    if batch == '211202_NMC': 
-        index = index & index2
+    
+    i_last = np.argmax(np.isnan(xx))-1
+    
+    plt.text(xx[0],yy[0],'{} $\mu m$'.format(Thickness[-1]))
+    
 
-    xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
-    yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
-        
-    lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
-    hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
-    ee = np.vstack([lo,hi])
+plt.vlines(0, ymin, ymax, 
+           linestyle = ':', 
+           color = 'k', 
+           linewidth = 1, 
+           zorder=0)
 
-    ax.errorbar(xx, yy, yerr = ee, 
-                    marker = stylefun(i)[1], 
-                    linestyle = stylefun(i)[2], 
-                    color = stylefun(i)[0], 
-                    capsize = 2, 
-                    label = batch, 
-                    markersize=4, 
-                    linewidth = 1.5, 
-                    zorder = 110)
+plt.fill_between([0,xmax],[ymax,ymax],ymin,
+                 color='k',
+                 alpha = 0.1, 
+                 zorder = 0)
 
+ax.set_ylabel('Areal Discharge Capacity \n[mAh/cm$^2$]')
+ax.set_xlabel('Excess Penetration Depth [$\mu$m]')
 
-BatchList = ['211202_NMC', '220203_NMC']
+fig.tight_layout()
+plt.show()
+    
+#%%
+
 
 #LegOrd = 0
 
@@ -205,3 +224,64 @@ fig.tight_layout()
 plt.show()
 
 #%%
+n = 1 # 1
+R = 8.314 # J/molK
+T = 278 #K
+F = 96485.3329 # C/mol
+b=2*R*T/(n*F) #V
+
+eta = lambda eta0, z: 4*b*np.arctanh(np.exp(-z)*np.tanh(eta0/(4*b)))
+
+Jf = lambda eta0, z: np.sinh(eta(eta0,z)/b)/np.sinh(eta0/b)
+
+thresh = 0.05#np.exp(-1)
+
+
+fig, ax= plt.subplots(figsize=(13,6))
+
+for name, group in dfall[dfall['Batch']=='211202_NMC'].groupby(by = ['SampleID']):
+    cc = group['Cycle_ID'].to_numpy()
+    nn = group['Overpotential(V)'].to_numpy()
+    zcrt = np.array([])
+    for nni in nn:
+        if ~np.isnan(nni):
+            fun = lambda z: abs(Jf(nni, z) - thresh)
+            Zcrit = fmin(fun,np.array([1]))
+            zcrt = np.append(zcrt,Zcrit)
+        else:
+            zcrt = np.append(zcrt,np.nan)
+    
+    ax.plot(cc, zcrt, marker='.', linestyle='-', label = name)    
+    
+    #group.plot(x='Cycle_ID', y='Overpotential(V)', marker='.', linestyle='-', ax=ax, label=name)
+
+ax.set_xlabel('Cycle_ID')
+ax.set_ylabel('Critical Thickness, x/L')
+handles, labels = ax.get_legend_handles_labels()
+
+ax.legend(handles, labels, loc = 'lower right')
+    
+#%%
+
+fig, ax= plt.subplots(figsize=(13,6))
+zz = np.linspace(0,2,1000)
+fun = lambda z: abs(Jf(0.0247, z) - 0)
+plt.plot(zz,fun(zz))
+
+
+# %%
+
+
+
+dfplot = dfall.loc[dfall['Batch']=='M. Singh (2016), NMC'].copy()
+
+fig, ax= plt.subplots(figsize=(10,6))
+
+
+for name, group in dfplot.groupby(by = ['Cycle']):
+    label = group['C-rate(1/h)'].unique()[0]
+    group.plot(x='Thickness(um)',y='Capacity(mAh/cm2)', marker = 'o', label = label, ax = ax)
+
+
+ax.set_ylabel('Capacity(mAh/cm2)')
+ax.set_xlabel('Thickness(um)')
