@@ -11,7 +11,7 @@ import pandas as pd
 import simplejson as json
 
 
-def dfall_dfCrit(read_json = True, write_json = False):
+def dfall_dfCrit(read_json = True, write_json = False, SampleList = {}):
 
     """
     gets dfall and dfCapCrit. 
@@ -26,19 +26,19 @@ def dfall_dfCrit(read_json = True, write_json = False):
     
     if not read_json:
 
-        SampleList = {
-                        #'220203_NMC': ['10', '11', '15', '16', '24', '25'],
-                        #'220203_NMC': ['03', '04', '05', '06', '09', '17', '18', '21', '22', '23'],
-                        '220203_NMC': ['03', '06', '18', '21', '22', '23'],
-                        '211202_NMC': ['02', '03', '05', '06', '07', '08', '09', '12', '13', '15', '16', '17', '18', '19']
-                    }
+        if SampleList == {}:
+            SampleList = {
+                            #'220203_NMC': ['10', '11', '15', '16', '24', '25'],
+                            #'220203_NMC': ['03', '04', '05', '06', '09', '17', '18', '21', '22', '23'],
+                            '220203_NMC': ['03', '06', '18', '21', '22', '23'],
+                            '211202_NMC': ['02', '03', '05', '06', '07', '08', '09', '12', '13', '15', '16', '17', '18', '19']
+                        }
         
         #collecting batch cycle data 
         dfall = Cycler.get_BatchCycles(SampleList)
         
         #adding HZheng and DYW Yu
         dfnew = Cycler.init_OtherData()
-        
         dfall = pd.concat([dfall, dfnew], ignore_index = True)
         
         #here im calculating the peak potentials and overpotentials for each cycle

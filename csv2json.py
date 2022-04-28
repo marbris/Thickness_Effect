@@ -30,7 +30,12 @@ def list_files(dir):
 #datafolder = r'Data/Data_220203_NMC/Martin_0203_2_2022_03_04_172442'
 #datafolder = "Data/Data_220203_NMC/raw"
 #datafolder = 'Data/Data_211202_NMC/CoinCell_RAW_211202_NMC'
-datafolder = 'Data/Data_220209_NMC/martin_0209_CycleStability_2022_03_29_171155'
+#datafolder = 'Data/Data_220209_NMC/martin_0209_CycleStability_2022_03_29_171155'
+#datafolder = 'Data/Data_220209_NMC/0209_Cyclestability_Neware'
+#datafolder = 'Data/Data_220317_NMC/martin_0303_0317_Cscan_2022_03_30_115238'
+#datafolder = 'Data/Data_220303_NMC/martin_0303_0317_2022_03_18_161846'
+#datafolder = 'Data/Data_220317_NMC/martin_0303_0317_2022_03_18_161846'
+datafolder = 'Data/CV'
 r = list_files(datafolder)
 
 
@@ -41,8 +46,19 @@ for file in r:
     if re.search(regexp, file):
         MITS_2json(file, CSV=False)
         print("Finished: {}".format(file))
-                
+  
+#%%                
+datafolder = 'Data/Data_220209_NMC/0209_Cyclestability_Neware'
+r = list_files(datafolder)
 
+
+
+regexp=".*\.csv$"
+
+for file in r:
+    if re.search(regexp, file):
+        BTS_csv2json(file)
+        print("Finished: {}".format(file))
 
 
 #%%

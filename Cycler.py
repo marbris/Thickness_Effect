@@ -181,7 +181,7 @@ def BTS_csv2json(filename, outfile='', Output_JSON_file=True, Pretty_JSON=False)
             'Discharge Time(h:min:s.ms)':       str(C_Data['Discharge Time(h:min:s.ms)']),
             'Charge IR(O)':                     float(C_Data['Charge IR(O)']),
             'Discharge IR(O)':                  float(C_Data['Discharge IR(O)']),
-            'End Temperature(C)':               float(C_Data['End Temperature(�C)']),
+            'End Temperature(C)':               float(C_Data['End Temperature(C)']),
             'Net Cap_DChg(mAh)':                float(C_Data['Net Cap_DChg(mAh)']),
             'Net Engy_DChg(mWh)':               float(C_Data['Net Engy_DChg(mWh)']),
             'Energy Efficiency(%)':             float(C_Data['Energy Efficiency(%)']),
@@ -886,8 +886,9 @@ def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", Co
             df.loc[Crate_group,'C-rate(prog-frac)'] = df.loc[Crate_group,'C-rate(1/h)']/cr-1
             df.loc[Crate_group,'Avg_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].mean()
             df.loc[Crate_group,'Std_C-rate(1/h)'] = df.loc[Crate_group,'C-rate(1/h)'].std()
-            df.loc[Crate_group,'Avg_Current(mA/cm2)'] = df.loc[Crate_group,'Discharge_Current(mA/cm2)'].mean()
-            df.loc[Crate_group,'Std_Current(mA/cm2)'] = df.loc[Crate_group,'Discharge_Current(mA/cm2)'].std()
+            
+            
+            
             
             #thicks = np.sort(df.loc[df['C-rate(prog)'] == cr,'Thickness(um)'].unique())
             #here I'm looping through all samples that share this C-rate group, and calculate each of their average Capacity and overpotentials.
@@ -902,7 +903,10 @@ def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", Co
                     indexCap = index0 & ~df['Cycle'].isin(Cap_mean_Exl_Cyc)
                 else:
                     indexCap = index0
-                        
+                
+                
+                df.loc[indexCap,'Avg_Current(mA/cm2)'] = df.loc[indexCap,'Discharge_Current(mA/cm2)'].mean()
+                df.loc[indexCap,'Std_Current(mA/cm2)'] = df.loc[indexCap,'Discharge_Current(mA/cm2)'].std()
                 df.loc[indexCap,'Avg_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Discharge_Capacity(mAh/cm2)'].mean()
                 df.loc[indexCap,'Std_DCapacity(mAh/cm2)'] = df.loc[indexCap,'Discharge_Capacity(mAh/cm2)'].std()
                 df.loc[indexCap,'Avg_DCapacity(mAh/gAM)'] = df.loc[indexCap,'Discharge_Capacity(mAh/gAM)'].mean()
@@ -1034,7 +1038,7 @@ def get_OPCrit(dfall, L0=57):
     return dfOPCrit
 
 
-def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.08, Incl_Cyc = np.array([]), Dcap_Lim = 0.3, filter_V_lim = (4.1, 4.38), dqdv2_filter_lim = 4.25, Jd=0.01, ConfigFile = "Data/Supplemental/SampleConfig.json"):
+def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.08, Incl_Cyc = np.array([]), Dcap_Lim = 0.3, filter_V_lim = (4.1, 4.38), dqdv2_filter_lim = 4.25, Jd=0.01, ConfigFile = "Data/Supplemental/SampleConfig.json", Mid_Potential = 4.181046055555556):
     
     #Here I load the config file where I store sample specific exceptions.
     with open(ConfigFile) as file:
@@ -1240,9 +1244,12 @@ def get_overpotential(Batch, Sample, Plot=0, Curve_Volt = 0.08, Incl_Cyc = np.ar
                     
                     df_dQdV = pd.concat([df_dQdV, dftemp], ignore_index=True)
     
-                
-                
-    OPdf.loc[:,'Overpotential(V)'] = (OPdf.loc[:,'Charge_peak(V)'] - OPdf.loc[:,'Discharge_peak(V)'])/2
+    
+    #Previously I have used the midpoint between charge and discharge peaks as the equilibrium voltage. This is now a setting Mid_Potential==-1. Otherwise it will use the equilibrium potential Mid_Potential (= 4.181046055555556 V)
+    if Mid_Potential==-1:
+        OPdf.loc[:,'Overpotential(V)'] = (OPdf.loc[:,'Charge_peak(V)'] - OPdf.loc[:,'Discharge_peak(V)'])/2
+    else:
+        OPdf.loc[:,'Overpotential(V)'] = (Mid_Potential - OPdf.loc[:,'Discharge_peak(V)'])/2
     
     #Jd=0.01
     n = 1 # 1
@@ -1330,3 +1337,18 @@ def get_ChargeDischarge(Batch, Sample, DataDirectory='Data/'):
     return df_Charge_Discharge
 
 
+def get_L0():
+    n = 1 # 1
+    R = 8.314 # J/molK
+    T = 298 #K
+    F = 96485.3329 # C/mol
+    b=2*R*T/(n*F) #V
+    
+    sig_l = 9.169e-3 # S/cm
+    i0 = 7.2e-4 # A/cm2
+    S = 9.3e3 # cm2/cm3
+    rho_l = 1/sig_l #Ohm cm
+    
+    L0 = 57
+    
+    return L0

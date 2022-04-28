@@ -51,7 +51,8 @@ dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit()
 #dfplot = dfall.loc[dfall['Batch'].isin(['211202_NMC','220203_NMC'])].copy()
 
 BatchList = ['211202_NMC']
-Samplelist = ['05','08','12','15', '18']
+#Samplelist = ['05','08','12','15', '18']
+Samplelist = dfall.loc[dfall['Batch']=='211202_NMC', 'Sample'].unique()
 
 fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))   
 
@@ -88,7 +89,7 @@ plt.hlines(tt,9e-2,3e-1,linestyle = ':', color='black')
 
 
 
-Jdlist=[0.01, 0.1, np.exp(-1)]
+Jdlist=[0.01]
 for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
 
     for i, Jdi in enumerate(Jdlist):
@@ -101,7 +102,7 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
         ld = group.loc[index,'Avg_Overpotential(V)'].apply(Ld).to_numpy(dtype=float)
 
         Ldiff = ld*L0
-        cc = group.loc[index,'Avg_C-rate(1/h)'].to_numpy(dtype=float)
+        cc = group.loc[index,'Avg_Current(mA/cm2)'].to_numpy(dtype=float)
 
         if name == Samplelist[0]:
             label = 'Penetration Depth, J$_d$ = {:.2}'.format(Jdi)
@@ -148,11 +149,21 @@ Cc = df.loc[:, 'C-rate(prog)']
 #index2 = (Cc > 0.1) & (Cc < 4.8) 
 index = (Cc > 0.1) & (Cc < 4.8) & ~df['Thickness_lo(um)'].isnull() & ~df['Thickness_hi(um)'].isnull()
 
-xx = np.array(df.loc[index,'C-rate_mean(1/h)'].tolist())
-yy = np.array(df.loc[index,'Thickness_max(um)'].tolist())
-    
-lo = np.array(df.loc[index,'Thickness_lo(um)'].tolist())
-hi = np.array(df.loc[index,'Thickness_hi(um)'].tolist())
+xx = df.loc[index,'C-rate_mean(1/h)'].to_numpy(dtype=float)
+yy = df.loc[index,'Thickness_max(um)'].to_numpy(dtype=float)
+
+#calculating the current density
+#first get the nominal areacap for each sample
+C01Cap = np.array([dfall.loc[(dfall['Batch']=='211202_NMC') & (dfall['Cycle']==2) & (dfall['Thickness(um)']==l),'Avg_DCapacity(mAh/cm2)'].values[0] for l in yy])    
+
+#convert c-rate to current density
+xx=xx*C01Cap
+#0.04222018501989293*yy
+
+
+
+lo = df.loc[index,'Thickness_lo(um)'].to_numpy(dtype=float)
+hi = df.loc[index,'Thickness_hi(um)'].to_numpy(dtype=float)
 ee = np.vstack([lo,hi])
 
 ax.errorbar(xx, yy, yerr = ee, 
@@ -169,12 +180,12 @@ ax.errorbar(xx, yy, yerr = ee,
 
 
 
-ax.set_xlabel('C-rate(1/h)', fontsize=15)
-ax.set_ylabel('penetration depth, \nL$_d$ [$\mu$m]', fontsize = 15)
+ax.set_xlabel('Discharge Current Density (mA/cm$^2$)', fontsize=15)
+ax.set_ylabel('Depth into Cathode \n[$\mu$m]', fontsize = 15)
 handles, labels = ax.get_legend_handles_labels()
 
 ax.set_xscale('log')
-ax.set_xlim((9e-2, 6))
+#ax.set_xlim((9e-2, 6))
 
 ax.legend(handles, labels, 
           loc = 'upper right', 

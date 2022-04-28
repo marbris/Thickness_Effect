@@ -5,6 +5,7 @@ Created on Wed Dec  1 13:39:20 2021
 
 @author: martin
 """
+#%%
 import os
 import re
 import simplejson as json
@@ -27,6 +28,16 @@ def list_files(dir, RegExp):
 
 #%%
 
+
+filename = 'Data/Data_220203_NMC/BET_220203_NMC.json'
+
+with open(filename) as file:
+    BET_Data=json.load(file)
+
+
+
+
+#%%
 
 
 df = Cycler.get_CycleData('211117_NMC_1', 1, 'Data', Properties=['Cycle ID', 'Cap_DChg(mAh)'])
