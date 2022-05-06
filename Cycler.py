@@ -6,6 +6,7 @@ Created on Mon Nov 29 13:52:27 2021
 @author: Martin Brischetto
 
 """
+#%%
 
 import pandas as pd
 import simplejson as json
@@ -1337,18 +1338,49 @@ def get_ChargeDischarge(Batch, Sample, DataDirectory='Data/'):
     return df_Charge_Discharge
 
 
-def get_L0():
+def get_L0(WT):
     n = 1 # 1
     R = 8.314 # J/molK
     T = 298 #K
     F = 96485.3329 # C/mol
     b=2*R*T/(n*F) #V
     
-    sig_l = 9.169e-3 # S/cm
-    i0 = 7.2e-4 # A/cm2
-    S = 9.3e3 # cm2/cm3
-    rho_l = 1/sig_l #Ohm cm
+    #get effective conductivity from EIS
+    File='Data/McMullin/RIon_WT_220428_NMC.csv'
+    df_NM = pd.read_csv(File)
+    index = df_NM['Wet_Thickness[um]'] == WT
+    if sum(index):
+        NM = df_NM.loc[index,'McMullin'].values[0]
+    else:
+        print(f'There is no data for that wet thickness ({WT}). \nDatafile = {File}' )
+        return -1
     
-    L0 = 57
+    #from xiaoyu, measuring conductivity of the electrolyte
+    Sig_Bulk = 9.169e-3 # S/cm 
+    Sig_Eff = Sig_Bulk/NM # S/cm 
+    
+    #Rho_Eff = 1/Sig_Eff #Ohm cm
+    
+    #get surface area from BET
+    File='Data/BET_analyzer/BET.csv'
+    df_BET = pd.read_csv(File)
+    index = df_BET['Good_BTS[Bol]']
+    Specific_S = df_BET.loc[index,'BET_Surface_Area[m2/g]'].to_numpy(dtype=float)
+    
+    #get density from the punched cathode data
+    File = 'Data/Data_220203_NMC/Samples_220203_NMC.csv'
+    df_density = pd.read_csv(File)
+    density = df_density['g/cm3'].mean()
+    
+    Volumetric_S = Specific_S*1e4*density #cm2/cm3
+    S = np.mean(Volumetric_S)
+    #S = 9.3e3 # cm2/cm3
+    
+    
+    i0 = 7.2e-4 # A/cm2
+    
+    #L0 = 57
+    
+    L0 = np.sqrt(b*Sig_Eff/(2*i0*S))*1e4 #um
     
     return L0

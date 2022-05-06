@@ -58,9 +58,13 @@ fig, ax= plt.subplots(figsize=(Col2,Col1*AR*1.2))
 
 Cols2 = ['k', 'r', 'b', '#2a9d8f', '#264653']
 markers = ['o', 'v', 's', '^']
+Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
 
 def colfun(i):
     return Cols2[np.mod(i,len(Cols2))]
+
+
+
 
 
 Jd=np.exp(-1)
@@ -78,14 +82,17 @@ Ld = lambda eta0: np.log( np.tanh( eta0/(4*b) )/np.tanh( eta_d(eta0)/(4*b) ))
 
 index1 = (dfall['Batch'].isin(BatchList)) & (dfall['Sample'].isin(Samplelist))
 
-L0 = 57
+#L0 = 57
 ttss = np.array([])
 wtt = np.array([])
 ttt = np.array([])
 
 
 tt = dfall.loc[index1, 'Thickness(um)'].unique()
-plt.hlines(tt,9e-2,3e-1,linestyle = ':', color='black')
+#plt.hlines(tt,9e-2,3e-1,linestyle = ':', color='black')
+
+RFile='Data/McMullin/RIon_WT_220428_NMC.csv'
+df_RW = pd.read_csv(RFile)
 
 
 
@@ -101,6 +108,9 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
             
         ld = group.loc[index,'Avg_Overpotential(V)'].apply(Ld).to_numpy(dtype=float)
 
+        Wet_Thickness = group['Wet_Thickness(um)'].unique()[0]
+        L0 = Cycler.get_L0(Wet_Thickness)
+        #print(L0)
         Ldiff = ld*L0
         cc = group.loc[index,'Avg_Current(mA/cm2)'].to_numpy(dtype=float)
 
@@ -108,10 +118,11 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
             label = 'Penetration Depth, J$_d$ = {:.2}'.format(Jdi)
         else:
             label = '_No_Label_'
-            
-        ax.plot(cc, Ldiff, marker='.',linestyle='-', color=colfun(i), label=label )
+        
+        print(i)
+        ax.plot(cc, Ldiff, marker='.',linestyle='-', color=colfun(si),  label = '{} $\mu$m'.format(thickness)) #, label=label )
 
-        thickness = group['Thickness(um)'].unique()
+        thickness = group['Thickness(um)'].unique()[0]
        
         nani = np.argmax(np.isnan(Ldiff))-1
         cc = cc[:nani]
@@ -128,7 +139,7 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
             C_crit = np.nan
             C_crit_hi = np.nan
             
-        ax.plot(C_crit,thickness, marker = 'o', color = colfun(i), markerfacecolor = 'w', markersize = 8)
+        #ax.plot(C_crit,thickness, marker = 'o', color = colfun(i), markerfacecolor = 'w', markersize = 8)
             
         
 
@@ -166,6 +177,7 @@ lo = df.loc[index,'Thickness_lo(um)'].to_numpy(dtype=float)
 hi = df.loc[index,'Thickness_hi(um)'].to_numpy(dtype=float)
 ee = np.vstack([lo,hi])
 
+'''
 ax.errorbar(xx, yy, yerr = ee, 
                 marker = 'o', 
                 linestyle = '-', 
@@ -175,7 +187,7 @@ ax.errorbar(xx, yy, yerr = ee,
                 markersize=4, 
                 linewidth = 2, 
                 zorder = 110)
-
+'''
 
 
 
@@ -188,11 +200,11 @@ ax.set_xscale('log')
 #ax.set_xlim((9e-2, 6))
 
 ax.legend(handles, labels, 
-          loc = 'upper right', 
-          ncol = 1)
+          loc = 'lower left', 
+          ncol = 3)
 
 fig.tight_layout()
-
+plt.show()
 #%%
 
 
