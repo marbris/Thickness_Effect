@@ -60,10 +60,24 @@ Cols2 = ['k', 'r', 'b', '#2a9d8f', '#264653']
 markers = ['o', 'v', 's', '^']
 Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
 
-def colfun(i):
-    return Cols2[np.mod(i,len(Cols2))]
+def colfun(wt):
+    if wt==600:
+        col = Cols2[0]
+    elif wt==500:
+        col = Cols2[1]
+    elif wt==400:
+        col = Cols2[2]
+    elif wt==300:
+        col = Cols2[3]
+    elif wt==200:
+        col = Cols2[4]
+    else:
+        'k'
+    
+    return col
 
-
+def markfun(i):
+    return markers[np.mod(i,len(markers))]
 
 
 
@@ -109,7 +123,7 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
         ld = group.loc[index,'Avg_Overpotential(V)'].apply(Ld).to_numpy(dtype=float)
 
         Wet_Thickness = group['Wet_Thickness(um)'].unique()[0]
-        L0 = Cycler.get_L0(Wet_Thickness)
+        L0, _, _, _ = Cycler.get_L0(Wet_Thickness)
         #print(L0)
         Ldiff = ld*L0
         cc = group.loc[index,'Avg_Current(mA/cm2)'].to_numpy(dtype=float)
@@ -120,9 +134,14 @@ for si, (name, group) in enumerate(dfall.loc[index1, :].groupby(by = 'Sample')):
             label = '_No_Label_'
         
         print(i)
-        ax.plot(cc, Ldiff, marker='.',linestyle='-', color=colfun(si),  label = '{} $\mu$m'.format(thickness)) #, label=label )
-
+        
         thickness = group['Thickness(um)'].unique()[0]
+        
+        ax.plot(cc, Ldiff, marker=markfun(si),linestyle='-', color=colfun(Wet_Thickness),  label = '{} $\mu$m'.format(thickness)) #, label=label )
+        
+        #ax.plot(cc, Ldiff, marker='.',linestyle='-', color='k', label=label )
+
+        
        
         nani = np.argmax(np.isnan(Ldiff))-1
         cc = cc[:nani]
@@ -199,9 +218,13 @@ handles, labels = ax.get_legend_handles_labels()
 ax.set_xscale('log')
 #ax.set_xlim((9e-2, 6))
 
+ax.set_ylim((-5,25))
+
 ax.legend(handles, labels, 
           loc = 'lower left', 
-          ncol = 3)
+          ncol = 4,
+          framealpha = 0,
+          fontsize = 8)
 
 fig.tight_layout()
 plt.show()
