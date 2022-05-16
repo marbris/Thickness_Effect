@@ -18,12 +18,31 @@ import Cycler
 
 
 def list_files(dir, RegExp):
+
     r = []
     for root, dirs, files in os.walk(dir):
         for name in files:
             if re.search(RegExp, name):
                 r.append(os.path.join(root, name))
     return r
+
+#%%
+
+
+#LMO OCV 
+OCV = lambda y: (4.06279 + 0.0677504*np.tanh(-21.8502*y + 12.8268)
+           - 0.105734*(1/((1.00167 - y)**(0.379571)) - 1.575994)
+           - 0.045*np.exp(-71.69*y**8)
+           + 0.01*np.exp(-200*(y - 0.19)))
+
+fig, ax= plt.subplots(figsize=(5,5))
+
+yy = np.linspace(0.01,0.99,1000)
+oo = OCV(yy)
+
+index = (oo < 4.4) & (oo > 2.8)
+
+plt.plot(yy[index],oo[index])
 
 
 #%%

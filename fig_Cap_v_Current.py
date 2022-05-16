@@ -28,7 +28,8 @@ Col2= 18.3/2.54 # 18.3cm double column figure width in Nature
 
 AR = 1/1.618
 
-dfall, dfCrit = main.dfall_dfCrit()
+dfall, dfCapCrit, dfOPCrit = main.dfall_dfCrit()
+
 
 
 #%%
@@ -99,7 +100,7 @@ Settings = 0
 if Settings==0:
     # Area Cap vs C-rate
     xCol = 'C-rate(1/h)'
-    yCol = 'Capacity(mAh/cm2)'
+    yCol = 'Discharge_Capacity(mAh/cm2)'
     
     xLab = 'C-rate [h$^{-1}$]'
     yLab = 'Discharge Capacity \n[mAh/cm$^2$]'
@@ -110,6 +111,7 @@ if Settings==0:
     ymin = -0.2
     ymax = 8
     
+    
     Leg_kwargs = {'loc': 'upper right', 'bbox_to_anchor' : (1.01, 1.05)}
     Leg_Dummy_tt = -1
     Leg_Col_Order = -1
@@ -118,7 +120,7 @@ if Settings==0:
 elif Settings==1:
     # AMmass Cap vs C-rate
     xCol = 'C-rate(1/h)'
-    yCol = 'Capacity(mAh/gAM)'
+    yCol = 'Discharge_Capacity(mAh/gAM)'
     
     xLab = 'C-rate [h$^{-1}$]'
     yLab = 'Discharge Capacity \n[mAh/g$_{AM}$]'
@@ -135,8 +137,8 @@ elif Settings==1:
     
 elif Settings==2:
     # Area Cap vs Current density
-    xCol = 'Current(mA/cm2)'
-    yCol = 'Capacity(mAh/cm2)'
+    xCol = 'Discharge_Current(mA/cm2)'
+    yCol = 'Discharge_Capacity(mAh/cm2)'
     
     xLab = 'Current Density [mA/cm$^2$]'
     yLab = 'Discharge Capacity \n[mAh/cm$^2$]'
@@ -154,8 +156,8 @@ elif Settings==2:
     
 elif Settings==3:
     # AMmass Cap vs Current density
-    xCol = 'Current(mA/cm2)'
-    yCol = 'Capacity(mAh/gAM)'
+    xCol = 'Discharge_Current(mA/cm2)'
+    yCol = 'Discharge_Capacity(mAh/gAM)'
     
     xLab = 'Current Density [mA/cm$^2$]'
     yLab = 'Discharge Capacity \n[mAh/g$_{AM}$]'

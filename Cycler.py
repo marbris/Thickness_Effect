@@ -1383,4 +1383,4 @@ def get_L0(WT):
     
     L0 = np.sqrt(b*Sig_Eff/(2*i0*S))*1e4 #um
     
-    return L0
+    return L0, S, Sig_Eff, i0
