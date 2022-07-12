@@ -3,7 +3,8 @@
 import pandas as pd
 
 
-file = 'Data/Data_220428_NMC/inputs.csv'
+#file = 'Data/Data_220428_NMC/inputs.csv'
+file = 'Data/Data_220621_LFP/inputs.csv'
 D = pd.read_csv(file)
 
 for i in range(len(D)):
@@ -11,11 +12,12 @@ for i in range(len(D)):
     DoctorBlade = D.loc[i,'DoctorBlade[um]']
     mass = D.loc[i,'mass[mg]']
     thickness = D.loc[i,'thickness[um]']
+    channel = D.loc[i,'Channel']
     
     L='{'
     R='}'
-    print(f'\"{SampleID}\": {L}"SampleID": {SampleID}, "DoctorBlade": {DoctorBlade}, "ECCmass": {mass}, "ECCthickness": {thickness}, "Cycler_Channel": null, "Cycler_Program": "EIS_Tortuosity", "StartTime": null{R},')
-          
+    print(f'\"{SampleID}\": {L}"SampleID": {SampleID}, "DoctorBlade": {DoctorBlade}, "ECCmass": {mass}, "ECCthickness": {thickness}, "Cycler_Channel": {channel}, "Cycler_Program": "LFP_220623_CurrDens", "StartTime": \"06/23/2022 16:35:01\"{R},')
+    
       #    }: { \"SampleID\": , \"DoctorBlade\":1400, \"ECCmass\": 0,' )
           
           
@@ -25,6 +27,9 @@ for i in range(len(D)):
 #%%
 q = 2
 
+#Coincell 3  and 55 start
+#06/24/2022 10:19:41
 
-
+#the rest
+# 06/23/2022 16:35:01
 #%%

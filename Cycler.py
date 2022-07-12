@@ -315,7 +315,7 @@ def MITS_2json(filename, outfile='', Output_JSON_file=True, Pretty_JSON=False, C
     if CSV:
         D = pd.read_csv(filename, sep=",", engine='python', index_col=False)
     else:
-        D = pd.read_excel(filename, sheet_name = 1)
+        D = pd.read_excel(filename, sheet_name = 0)
     
     #The cycles in the data file
     Cycle_index = D['Cycle_Index'].unique().tolist()
@@ -745,6 +745,8 @@ def get_BatchCycles(SampleList, DataDirectory = 'Data/', CapacityNorm_CycleID = 
     for Batch in list(SampleList.keys()):
         for Sample in SampleList[Batch]:
             
+            print('Batch: {0} \nSample: {1}'.format(Batch,Sample))
+            
             if 'CapacityNorm_CycleID' in SampleConfig[Batch][Sample].keys():
                 CapacityNorm_CycleID = SampleConfig[Batch][Sample]['CapacityNorm_CycleID']
         
@@ -822,11 +824,14 @@ def init_OtherData():
     dfnew.loc[index,'Discharge_Capacity(mAh/gAM)']        = D.loc[index,'Qm[mAh/gAM]']
     dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']        = D.loc[index,'Qm[mAh/gAM]']*rho*(D.loc[index,'t[mu]']*1e-4)
     
+    index = D['Source'] == 'C. Heubner (2020)'
+    dfnew.loc[index,'Qrel']                               = D.loc[index,'Qrel']
     
-    #below I calculate 'Capacity(mAh/gAM)' and 'Current(mA/cm2)' for the two data sets
+    
+    #below I calculate 'Capacity(mAh/gAM)' and 'Current(mA/cm2)' for the data sets
     
     #AM loadings to calculate mass capacity of H. Zheng
-    AMl_ZH = np.array([5.56, 11.48, 17.52, 24.01, 1.51, 3.64, 7.31, 11.34, 15.83]) #mg/cm2
+    AMl_ZH = np.array([5.56, 11.48, 17.52, 24.01, 1.51, 3.64, 7.31, 11.34, 15.83])*1e-3 #g/cm2
     tt_ZH = np.array([24, 50, 76, 104, 10, 25, 50, 77, 108]) #um
     cat_ZH = ['NMC', 'NMC', 'NMC', 'NMC', 'LFP', 'LFP', 'LFP', 'LFP', 'LFP'] 
     
@@ -839,7 +844,7 @@ def init_OtherData():
         dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
     
     #AM loadings to calculate mass capacity of M. Singh
-    AMl_MS = np.array([18,30,42,54,67,82]) #mg/cm2
+    AMl_MS = np.array([18,30,42,54,67,82])*1e-3 #g/cm2
     tt_MS = np.array([70,105,155,205,255,305]) #um
     
     for i, ti in enumerate(tt_MS):
@@ -857,6 +862,28 @@ def init_OtherData():
         cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Discharge_Capacity(mAh/cm2)'].mean()
         dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C 
         
+    
+    #AM loadings to calculate mass capacity of C. Heubner
+    AMl_CH = np.array([27.4, 30.3, 33.1, 36.5, 39.9, 44.4, 45.0, 50.2, 56.2, 5.8, 13.9, 21.3, 30.1, 5.8, 15.1, 23.3, 29.6])*1e-3 #g/cm2
+    tt_CH = np.array([119, 120, 129, 164, 163, 166, 206, 208, 216, 28, 67, 100, 145, 29, 76, 117, 149]) #um
+    ArCap_CH = np.array([4.1, 4.5, 5.0, 5.5, 6.0, 6.7, 6.8, 7.5, 8.4, 1.0, 2.4, 3.7, 5.3, 1.0, 2.6, 4.1, 5.2]) # mAh/cm2
+    cat_CH = ['NMC', 'NMC', 'NMC', 'NMC', 'NMC', 'NMC', 'NMC', 'NMC', 'NMC', 'LTO', 'LTO', 'LTO', 'LTO', 'LTO', 'LTO', 'LTO', 'LTO'] 
+    
+    dfnew.loc[index,'Discharge_Capacity(mAh/cm2)']
+    
+    for i, ti in enumerate(tt_CH):
+        index = (dfnew['Batch'] == 'C. Heubner (2020), ' + cat_CH[i]) & (dfnew['Thickness(um)'] == ti) & (dfnew['Cathode'] == cat_CH[i])
+        
+        dfnew.loc[index,'Discharge_Capacity(mAh/cm2)'] = dfnew.loc[index,'Qrel']*ArCap_CH[i]
+        
+        dfnew.loc[index,'Discharge_Capacity(mAh/gAM)'] = dfnew.loc[index,'Qrel']*ArCap_CH[i]/AMl_CH[i]
+        
+        cap_01C = dfnew.loc[(index) & (dfnew['C-rate(1/h)']==0.1),'Discharge_Capacity(mAh/cm2)'].mean()
+        dfnew.loc[index,'Discharge_Current(mA/cm2)'] = dfnew.loc[index,'C-rate(1/h)']*cap_01C
+    
+    
+    dfnew = dfnew.drop(['Qrel'], axis = 1)
+      
     return dfnew
 
 def CRate_groups(df, CycleProgramFile = "Data/Supplemental/Cycler_Prog.json", ConfigFile = "Data/Supplemental/SampleConfig.json"):

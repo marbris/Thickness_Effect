@@ -34,7 +34,8 @@ def list_files(dir):
 #datafolder = 'Data/Data_220317_NMC/martin_0303_0317_Cscan_2022_03_30_115238'
 #datafolder = 'Data/Data_220303_NMC/martin_0303_0317_2022_03_18_161846'
 #datafolder = 'Data/Data_220317_NMC/martin_0303_0317_2022_03_18_161846'
-datafolder = 'Data/CV'
+#datafolder = 'Data/CV'
+datafolder = 'Data/Data_220621_LFP/220621_LFP'
 r = list_files(datafolder)
 
 
