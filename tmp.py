@@ -52,13 +52,16 @@ dfall, dfCrit = main.dfall_dfCrit(read_json=False)
 
 
 SampleList = {
-                        '220203_NMC': ['03', '04', '06', '18', '21', '22', '23'],
-                        #'220203_NMC': ['03', '04', '05', '06', '09', '17', '18', '21', '22', '23']
+                        #'220203_NMC': ['03', '04', '06', '18', '21', '22', '23'],
+                        #'220203_NMC': ['03', '04', '05', '06', '09', '17', '18', '21', '22', '23'],
+                        '220621_LFP': ['01', '02', '03', '04', '06', '07', '08', '11', '12', '13', '15', '16', '19', '20', '22', '23'],
                     }
         
+        #Not: '05', '09', '10', '14', '17', '18', '21' (21 data is coming)
 #collecting batch cycle data 
 df = Cycler.get_BatchCycles(SampleList)
 
+#%%
 
 fig, ax= plt.subplots(figsize=(13,6))
 
@@ -68,18 +71,66 @@ def colfun(i):
     return Cols[np.mod(i-1,len(Cols))]
 
 
-for i, (Sample, group) in enumerate(df.loc[df['Cycle']<32,:].groupby('Sample')):
+for i, (Sample, group) in enumerate(df.loc[df['Cycle']<12,:].groupby('Sample')):
     
     thickness  =  group['Thickness(um)'].unique()[0]
-    group.plot(x='C-rate(1/h)', y='Capacity(mAh/cm2)', 
+    group.plot(x='Discharge_Current(mA/cm2)', y='Discharge_Capacity(mAh/gAM)', 
+               color = colfun(i), 
+               label = '{:.0f} $\mu m$'.format(thickness), 
+               linestyle = '-', 
+               marker = 'o', 
+               markersize = (thickness-74)/(158-74)*6 + 2,
+               ax=ax)
+    
+ax.set_xscale('log')
+
+ax.set_ylabel('Discharge_Capacity(mAh/gAM)')
+#%%
+fig, ax= plt.subplots(figsize=(13,6))
+
+Cols = ['#001219', '#005f73', '#0a9396', '#94d2bd', '#e9d8a6', '#ee9b00', '#ca6702', '#bb3e03', '#ae2012', '#9b2226']
+
+def colfun(i):
+    return Cols[np.mod(i-1,len(Cols))]
+
+
+
+for i, (Sample, group) in enumerate(df.loc[df['Cycle']<12,:].groupby('Cycle')):
+    
+    group = group.sort_values(by='Thickness(um)')
+    
+    current  =  group['Discharge_Current(mA/cm2)'].mean()
+    
+    group.plot(x='Thickness(um)', y='Discharge_Capacity(mAh/gAM)', 
+               color = colfun(i), 
+               label = '{:.3f}'.format(current), 
+               linestyle = '-', 
+               marker = 'o', 
+               markersize = 6,
+               ax=ax)
+    
+
+#%%
+fig, ax= plt.subplots(figsize=(13,6))
+
+Cols = ['#001219', '#005f73', '#0a9396', '#94d2bd', '#e9d8a6', '#ee9b00', '#ca6702', '#bb3e03', '#ae2012', '#9b2226']
+
+def colfun(i):
+    return Cols[np.mod(i-1,len(Cols))]
+
+Sample = '14'
+
+Index = (df['Cycle']<30) & (df['Sample']==Sample)
+
+df.loc[Index].plot(x='Discharge_Current(mA/cm2)', y='Discharge_Capacity(mAh/gAM)', 
                color = colfun(i), 
                label = str(Sample), 
                linestyle = '-', 
                marker = 'o', 
-               markersize = (thickness-171)/(218-171)*6 + 2,
+               markersize = (thickness-74)/(158-74)*6 + 2,
                ax=ax)
     
-ax.set_xscale('log')
+ax.set_xscale('linear')
 
 
 #%%
