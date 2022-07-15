@@ -38,7 +38,7 @@ AR = 1/1.618
 
 
 Cols = ['k','#e9c46a', '#e76f51', '#2a9d8f',  '#264653']
-styles = ['-', '--', ':', '.-']
+styles = ['--', '-.', ':', '-']
 
 def colfun(i):
     return Cols[np.mod(i,len(Cols))]
@@ -77,213 +77,53 @@ for i, b in enumerate(bb):
     plt.plot(xx,yy, 
              color = colfun(i),
              linestyle = stylefun(i))
+    
+    if i==3:
+        plt.text(xmax+2, yy[-1], 't$_{:.0f}$'.format(i), fontsize=10, verticalalignment = 'top')
+    else:
+        plt.text(xmax+2, yy[-1], 't$_{:.0f}$'.format(i), fontsize=10, verticalalignment = 'center')
 
+
+
+ax.set_xticks([])
+ax.set_yticks([])
 
 ax.set_ylim((ymin, ymax))
 ax.set_xlim((xmin, xmax))
 
-
-#%%
-
-# Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
-
-Cols2 = ['#e9c46a', '#e76f51', '#2a9d8f',  '#264653']
-markers = ['o', 'v', 's', '^', 'd']
-styles = ['-', '--', ':', '.-']
-
-def colfun2(i):
-    return Cols2[np.mod(i,len(Cols2))]
-
-
-def markerfun(i):
-    return markers[np.mod(i,len(markers))]
-
-def stylefun(i):
-    return styles[np.mod(i,len(styles))]
-
-def sizefun(t):
-    #k=0.06
-    #k=0.03
-    #return Thickness*k
-    return 4
-
-xLab = 'Cathode Thickness [$\mu$m]'
-#xLab = '"real" Current Density [mA/cm$^2$]'
-yLab = 'Cathode Utilization [%]'
-
-xmin = 1
-xmax = 400
-
-#xmin = 1e-4
-#xmax = 1e-1
-
-ymin = 0
-ymax = 105
-
-
-Leg_kwargs = {'loc': 'upper right'}
-
-
-fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))    
+ax.set_ylabel('Li$^+$ conc. in solution')
+ax.set_xlabel('Distance from Separator')
 
 
 
-def Utilization(L,Ld):
-    Ut = Ld/L*100
-    Ut[Ut>100] = 100
-    return Ut
 
-xx = np.linspace(xmin,xmax,int(1e3))
-
-Ldlist = [100, 150, 200]
-
-
-for i, Ld in enumerate(Ldlist):
+for i in range(3):
+    ypos = 0.5 + 0.15*i
+    ax.annotate("",
+                xy=(15, ypos), xycoords='data',
+                xytext=(0, ypos), textcoords='data',
+                arrowprops=dict(arrowstyle="->",
+                                connectionstyle="arc3"),
+                )
     
-    plt_kwargs = { 'color' : colfun2(i), 
-                    'linestyle' : stylefun(i),
-                    'linewidth' : 1 
-                    }
-    
-    
-    yy = Utilization(xx,Ld)
-    plt.plot(xx,yy,**plt_kwargs)
-
-# ax.annotate("Annotation",
-#             xy=(10, 90), xycoords='data',
-#             xytext=(10, 10), textcoords='offset points',
-#             )
-
-ax.annotate("",
-            fontsize=12,
-            xy=(110, 30), xycoords='data',
-            xytext=(300, 90), textcoords='data',
-            
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=-0.1",
-                            color = '0.4'),
-            ) 
-
-plt.text(170, 15, 'Increasing \ncurrent density', fontsize=10)
-
-ax.set_ylim((ymin, ymax))
-ax.set_xlim((xmin, xmax))
-
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, 
-          ncol = 1,#NCol, 
-          framealpha = 0, 
-          columnspacing=0.7, 
-          handletextpad = 0.3, 
-          labelspacing = 0.3,
-          **Leg_kwargs)
+plt.text(15, ypos+0.05, 'Li$^+$ diffusing \ninto cathode', fontsize=10)
 
 
-ax.set_ylabel(yLab)
-ax.set_xlabel(xLab)
+for i in range(4):
+    xpos = 25+i*20
+    ax.annotate("",
+                xy=(xpos, 0.2), xycoords='data',
+                xytext=(xpos, 0.4), textcoords='data',
+                arrowprops=dict(arrowstyle="->",
+                                connectionstyle="arc3"),
+                )
+
+
+plt.text(22, 0.45, 'Li$^+$ consumed by intercalation', fontsize=10)
+
+
+
 fig.tight_layout()
 plt.show()
 
-
-
 #%%
-
-
-
-# Cols2 = ['#e76f51', '#f4a261', '#e9c46a', '#2a9d8f', '#264653']
-
-Cols2 = ['#e9c46a', '#e76f51', '#2a9d8f',  '#264653']
-markers = ['o', 'v', 's', '^', 'd']
-styles = ['-', '--', ':', '.-']
-
-def colfun2(i):
-    return Cols2[np.mod(i,len(Cols2))]
-
-
-def markerfun(i):
-    return markers[np.mod(i,len(markers))]
-
-def stylefun(i):
-    return styles[np.mod(i,len(styles))]
-
-def sizefun(t):
-    #k=0.06
-    #k=0.03
-    #return Thickness*k
-    return 4
-
-xLab = 'Cathode Thickness [$\mu$m]'
-#xLab = '"real" Current Density [mA/cm$^2$]'
-yLab = 'Cathode Utilization [%]'
-
-xmin = 1
-xmax = 400
-
-#xmin = 1e-4
-#xmax = 1e-1
-
-ymin = 0
-ymax = 105
-
-Leg_kwargs = {'loc': 'upper right'}
-
-
-fig, ax= plt.subplots(figsize=(Col1,Col1*AR*1.2))    
-
-
-
-def Utilization(L,Ld):
-    Ut = Ld/L*100
-    Ut[Ut>100] = 100
-    return Ut
-
-xx = np.linspace(xmin,xmax,int(1e3))
-
-Ldlist = [100, 150, 200]
-
-
-for i, Ld in enumerate(Ldlist):
-    
-    plt_kwargs = { 'color' : colfun2(i), 
-                    'linestyle' : stylefun(i),
-                    'linewidth' : 1 
-                    }
-    
-    
-    yy = Utilization(xx,Ld)
-    plt.plot(xx,yy,**plt_kwargs)
-
-# ax.annotate("Annotation",
-#             xy=(10, 90), xycoords='data',
-#             xytext=(10, 10), textcoords='offset points',
-#             )
-
-ax.annotate("",
-            fontsize=12,
-            xy=(110, 30), xycoords='data',
-            xytext=(300, 90), textcoords='data',
-            
-            arrowprops=dict(arrowstyle="->",
-                            connectionstyle="arc3,rad=-0.1",
-                            color = '0.4'),
-            ) 
-
-plt.text(170, 15, 'Increasing \ncurrent density', fontsize=10)
-
-ax.set_ylim((ymin, ymax))
-ax.set_xlim((xmin, xmax))
-
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, labels, 
-          ncol = 1,#NCol, 
-          framealpha = 0, 
-          columnspacing=0.7, 
-          handletextpad = 0.3, 
-          labelspacing = 0.3,
-          **Leg_kwargs)
-
-
-ax.set_ylabel(yLab)
-ax.set_xlabel(xLab)
-fig.tight_layout()
-plt.show()
