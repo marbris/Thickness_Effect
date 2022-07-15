@@ -30,19 +30,29 @@ def list_files(dir, RegExp):
 
 
 #LMO OCV 
-OCV = lambda y: (4.06279 + 0.0677504*np.tanh(-21.8502*y + 12.8268)
-           - 0.105734*(1/((1.00167 - y)**(0.379571)) - 1.575994)
+OCV1 = lambda y: (4.06279 + 0.0677504*np.tanh(-21.8502*y + 12.8268)
+            - 0.105734*(1/((1.00167 - y)**(0.379571)) - 1.575994)
            - 0.045*np.exp(-71.69*y**8)
            + 0.01*np.exp(-200*(y - 0.19)))
+
+OCV = lambda y: (4.06279 #+ 0.0677504*np.tanh(-21.8502*y + 12.8268)
+            - 0.105734*(1/((1.00167 - y)**(0.379571)) - 1.575994)
+           #- 0.045*np.exp(-71.69*y**8)
+           + 0.01*np.exp(-200*(y - 0.19)))
+
 
 fig, ax= plt.subplots(figsize=(5,5))
 
 yy = np.linspace(0.01,0.99,1000)
-oo = OCV(yy)
+oo = OCV1(yy)
 
 index = (oo < 4.4) & (oo > 2.8)
 
-plt.plot(yy[index],oo[index])
+plt.plot(yy[index],oo[index], color='k')
+
+oo = OCV(yy)
+index = (oo < 4.4) & (oo > 2.8)
+plt.plot(yy[index],oo[index], color='r')
 
 
 #%%
@@ -195,4 +205,22 @@ df.groupby('Cycle_Index')['Current(A)'].plot(ax=ax, legend=True)
 
 #%%
 
+fig, ax= plt.subplots(figsize=(13,6))
 
+filename = 'Gallagher_2016_NCA_Simulated.csv'
+
+df = pd.read_csv(filename)
+
+
+for i, (name, df) in enumerate(df.groupby('Thickness[um]')):
+    Crate = df.loc[:,'C-rate[1/h]'].to_numpy(dtype=float)
+    Qa = df.loc[:,'Qa[mAh/cm2]'].to_numpy(dtype=float)
+    
+    Qv = Qa/(name*1e-4) #mAh/cm3
+    I = Crate*Qa[Crate==0.1] #mA/cm2
+    
+    plt.plot(I,Qv,marker = 'o')
+
+ax.set_xscale('log')
+ax.set_ylabel('Vol. capacity [mAh/cm3]')
+ax.set_xlabel('Current Density [mA/cm2]')
